@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace BrokenHelper.Models
 {
@@ -12,8 +13,22 @@ namespace BrokenHelper.Models
         public DbSet<FightPlayerEntity> FightPlayers { get; set; }
         public DbSet<DropEntity> Drops { get; set; }
 
+        public GameDbContext()
+        {
+        }
+
         public GameDbContext(DbContextOptions<GameDbContext> options) : base(options)
         {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                Directory.CreateDirectory("data");
+                var dbPath = Path.Combine("data", "data.db");
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
