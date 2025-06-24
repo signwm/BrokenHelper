@@ -408,3 +408,5 @@ FodyWeavers.xsd
 # Packet data
 /data/
 
+# Migrations
+/Migrations/
