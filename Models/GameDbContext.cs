@@ -34,6 +34,10 @@ namespace BrokenHelper.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<InstanceEntity>()
+                .HasIndex(i => i.PublicId)
+                .IsUnique();
         }
     }
 }

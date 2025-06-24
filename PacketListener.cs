@@ -91,7 +91,48 @@ namespace BrokenHelper
                 var filePath = Path.Combine(_dataPath, fileName);
                 var line = $"{rest} {DateTime.Now:O}";
                 File.AppendAllText(filePath, line + Environment.NewLine);
+
+                if (prefix == "1;118;")
+                {
+                    HandleInstanceMessage(rest);
+                }
             }
+        }
+
+        private void HandleInstanceMessage(string message)
+        {
+            var parts = message.Split('$');
+            if (parts.Length <= 9)
+                return;
+
+            if (!string.IsNullOrEmpty(parts[7]))
+                return;
+
+            var publicId = parts[4];
+            using var context = new Models.GameDbContext();
+
+            if (context.Instances.Any(i => i.PublicId == publicId))
+                return;
+
+            var startTime = DateTime.Now;
+
+            var openInstances = context.Instances.Where(i => i.EndTime == null).ToList();
+            foreach (var inst in openInstances)
+            {
+                inst.EndTime = startTime;
+            }
+
+            var instance = new Models.InstanceEntity
+            {
+                PublicId = publicId,
+                Name = parts[9],
+                Difficulty = int.TryParse(parts[3], out var diff) ? diff : 0,
+                StartTime = startTime,
+                EndTime = null
+            };
+
+            context.Instances.Add(instance);
+            context.SaveChanges();
         }
     }
 }
