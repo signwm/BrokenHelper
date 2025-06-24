@@ -12,7 +12,8 @@ namespace BrokenHelper.Models
         public DbSet<FightOpponentEntity> FightOpponents { get; set; }
         public DbSet<FightPlayerEntity> FightPlayers { get; set; }
         public DbSet<DropEntity> Drops { get; set; }
-        public DbSet<PriceEntity> Prices { get; set; }
+        public DbSet<ItemPriceEntity> ItemPrices { get; set; }
+        public DbSet<ArtifactPriceEntity> ArtifactPrices { get; set; }
 
         public GameDbContext()
         {
@@ -40,7 +41,17 @@ namespace BrokenHelper.Models
                 .HasIndex(i => i.PublicId)
                 .IsUnique();
 
-            modelBuilder.Entity<PriceEntity>()
+            modelBuilder.Entity<ItemPriceEntity>()
+                .HasIndex(p => p.Code)
+                .IsUnique();
+            modelBuilder.Entity<ItemPriceEntity>()
+                .HasIndex(p => p.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<ArtifactPriceEntity>()
+                .HasIndex(p => p.Code)
+                .IsUnique();
+            modelBuilder.Entity<ArtifactPriceEntity>()
                 .HasIndex(p => p.Name)
                 .IsUnique();
         }
