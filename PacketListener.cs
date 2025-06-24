@@ -100,6 +100,14 @@ namespace BrokenHelper
                 {
                     HandleFightMessage(rest);
                 }
+                else if (prefix == "36;0;")
+                {
+                    HandleItemPriceMessage(rest);
+                }
+                else if (prefix == "50;0;")
+                {
+                    HandleArtifactPriceMessage(rest);
+                }
             }
         }
 
@@ -320,6 +328,68 @@ namespace BrokenHelper
                 };
                 context.Drops.Add(drop);
             }
+        }
+
+        private static void HandleItemPriceMessage(string message)
+        {
+            ParsePrices(message, false);
+        }
+
+        private static void HandleArtifactPriceMessage(string message)
+        {
+            ParsePrices(message, true);
+        }
+
+        private static void ParsePrices(string message, bool artifact)
+        {
+            var entries = message.Split("[&&]", StringSplitOptions.RemoveEmptyEntries);
+
+            using var context = new Models.GameDbContext();
+            foreach (var entryRaw in entries)
+            {
+                var entry = entryRaw.Trim();
+                if (!entry.Contains(','))
+                    continue;
+
+                var parts = entry.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2)
+                    continue;
+
+                var code = parts[0];
+                if (!int.TryParse(parts[1], out var value))
+                    value = 0;
+
+                var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
+
+                if (artifact)
+                {
+                    if (context.ArtifactPrices.Any(p => p.Code == code || p.Name == name))
+                        continue;
+
+                    var price = new Models.ArtifactPriceEntity
+                    {
+                        Code = code,
+                        Value = value,
+                        Name = name
+                    };
+                    context.ArtifactPrices.Add(price);
+                }
+                else
+                {
+                    if (context.ItemPrices.Any(p => p.Code == code || p.Name == name))
+                        continue;
+
+                    var price = new Models.ItemPriceEntity
+                    {
+                        Code = code,
+                        Value = value,
+                        Name = name
+                    };
+                    context.ItemPrices.Add(price);
+                }
+            }
+
+            context.SaveChanges();
         }
     }
 }
