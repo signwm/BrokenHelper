@@ -117,7 +117,7 @@ namespace BrokenHelper
             if (parts.Length <= 9)
                 return;
 
-            if (!string.IsNullOrEmpty(parts[7]))
+            if (string.IsNullOrEmpty(parts[7]))
                 return;
 
             var publicId = parts[4];
