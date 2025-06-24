@@ -198,23 +198,33 @@ namespace BrokenHelper
                 context.SaveChanges();
             }
 
-            var existingOpponent = context.FightOpponents
+            var localOpponent = context.FightOpponents.Local
                 .FirstOrDefault(o => o.FightId == fight.Id && o.OpponentTypeId == type.Id);
 
-            if (existingOpponent != null)
+            if (localOpponent != null)
             {
-                existingOpponent.Quantity += 1;
+                localOpponent.Quantity += 1;
             }
             else
             {
-                var opponent = new Models.FightOpponentEntity
-                {
-                    Fight = fight,
-                    OpponentType = type,
-                    Quantity = 1
-                };
+                var existingOpponent = context.FightOpponents
+                    .FirstOrDefault(o => o.FightId == fight.Id && o.OpponentTypeId == type.Id);
 
-                context.FightOpponents.Add(opponent);
+                if (existingOpponent != null)
+                {
+                    existingOpponent.Quantity += 1;
+                }
+                else
+                {
+                    var opponent = new Models.FightOpponentEntity
+                    {
+                        Fight = fight,
+                        OpponentType = type,
+                        Quantity = 1
+                    };
+
+                    context.FightOpponents.Add(opponent);
+                }
             }
         }
 
