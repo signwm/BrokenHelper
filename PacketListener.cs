@@ -344,7 +344,7 @@ namespace BrokenHelper
 
         private static void ParsePrices(string message, bool artifact)
         {
-            var entries = message.Split("[&&]", StringSplitOptions.RemoveEmptyEntries);
+            var entries = message.Split("[&&]", StringSplitOptions.None);
 
             using var context = new Models.GameDbContext();
             foreach (var entryRaw in entries)
@@ -353,7 +353,7 @@ namespace BrokenHelper
                 if (!entry.Contains(','))
                     continue;
 
-                var parts = entry.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var parts = entry.Split(',', StringSplitOptions.None);
 
                 if (artifact)
                 {
@@ -376,19 +376,25 @@ namespace BrokenHelper
                 }
                 else
                 {
+                    Console.WriteLine("x");
                     if (parts.Length < 3)
                         continue;
 
+                    Console.WriteLine("y");
                     var name = parts[1];
                     if (!int.TryParse(parts[2], out var value))
                         value = 0;
 
+                    Console.WriteLine("z");
                     var price = new Models.ItemPriceEntity
                     {
                         Name = name,
                         Value = value
                     };
+                    Console.WriteLine("a");
                     context.ItemPrices.Add(price);
+                    
+                    Console.WriteLine("b");
                 }
             }
 
