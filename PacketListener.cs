@@ -100,7 +100,7 @@ namespace BrokenHelper
                 {
                     HandlePriceMessage(rest);
                 }
-                  else if (prefix == "3;19;")
+                else if (prefix == "3;19;")
                 {
                     HandleFightMessage(rest);
                 }
@@ -174,6 +174,8 @@ namespace BrokenHelper
                 else
                 {
                     existing.Value = value;
+                }
+            }
         }
 
         private void HandleFightMessage(string message)
