@@ -314,7 +314,17 @@ namespace BrokenHelper
             if (string.IsNullOrWhiteSpace(value))
                 return Array.Empty<string>();
 
-            return value.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            var parts = value.Split(new[] { "  " }, StringSplitOptions.None);
+            var result = new List<string>();
+
+            foreach (var part in parts)
+            {
+                var trimmed = part.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                    result.Add(trimmed);
+            }
+
+            return result.ToArray();
         }
 
         private static void ParseDrifs(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
