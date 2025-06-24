@@ -376,7 +376,13 @@ namespace BrokenHelper
 
                     var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
 
-                    var existing = context.ArtifactPrices.FirstOrDefault(p => p.Name == name);
+                    // first check the local cache for an existing entry
+                    var existing = context.ArtifactPrices.Local
+                        .FirstOrDefault(p => p.Code == code || p.Name == name);
+                    // if not found locally, query the database
+                    existing ??= context.ArtifactPrices
+                        .FirstOrDefault(p => p.Code == code || p.Name == name);
+
                     if (existing == null)
                     {
                         var price = new Models.ArtifactPriceEntity
@@ -403,7 +409,13 @@ namespace BrokenHelper
                         value = 0;
                     var name = parts.Length >= 3 ? string.Join(',', parts.Skip(2)) : parts[^1];
 
-                    var existing = context.ItemPrices.FirstOrDefault(p => p.Name == name);
+                    // look for an existing entry in the local context first
+                    var existing = context.ItemPrices.Local
+                        .FirstOrDefault(p => p.Name == name);
+                    // fall back to querying the database if none was found locally
+                    existing ??= context.ItemPrices
+                        .FirstOrDefault(p => p.Name == name);
+
                     if (existing == null)
                     {
                         var price = new Models.ItemPriceEntity
