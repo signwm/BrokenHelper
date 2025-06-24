@@ -74,7 +74,7 @@ namespace BrokenHelper
                 var messageBytes = _buffer.GetRange(0, index);
                 _buffer.RemoveRange(0, index + 1); // remove message and zero byte
 
-                var message = Encoding.ASCII.GetString(messageBytes.ToArray());
+                var message = Encoding.UTF8.GetString(messageBytes.ToArray());
                 var firstSemi = message.IndexOf(';');
                 if (firstSemi < 0)
                     continue;
@@ -84,6 +84,7 @@ namespace BrokenHelper
 
                 var prefix = message.Substring(0, secondSemi + 1); // e.g. 3;19;
                 var rest = message.Substring(secondSemi + 1);
+                rest = rest.Replace("%20", " ");
 
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
                 var filePath = Path.Combine(_dataPath, fileName);
