@@ -18,7 +18,7 @@ namespace BrokenHelper
         {
             Directory.CreateDirectory(_dataPath);
             var devices = CaptureDeviceList.Instance;
-            _device = devices.FirstOrDefault(d => d.Interface.FriendlyName?.Contains("Wi-Fi", StringComparison.OrdinalIgnoreCase) == true)
+            _device = devices.FirstOrDefault(d => d.Description?.Contains("Wi-Fi", StringComparison.OrdinalIgnoreCase) == true)
                       ?? devices.FirstOrDefault();
             if (_device == null)
                 throw new InvalidOperationException("No capture device found");
@@ -42,7 +42,8 @@ namespace BrokenHelper
 
         private void OnPacketArrival(object sender, PacketCapture e)
         {
-            var packet = Packet.ParsePacket(e.GetPacket().LinkLayerType, e.Data);
+            var raw = e.GetPacket();
+            var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data.ToArray());
             var tcp = packet.Extract<TcpPacket>();
             if (tcp == null)
                 return;
