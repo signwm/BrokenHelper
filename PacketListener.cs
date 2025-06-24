@@ -14,6 +14,36 @@ namespace BrokenHelper
         private readonly List<byte> _buffer = new();
         private readonly string _dataPath = Path.Combine("data", "packets");
 
+        private static readonly string[][] BossGroups = new[]
+        {
+            new[] { "Duch Ognia", "Duch Energii", "Duch Zimna" },
+            new[] { "Babadek", "Gregorius", "Ghadira" },
+            new[] { "Mahet", "Tarul" },
+            new[] { "Lugus", "Morana" },
+            new[] { "Fyodor", "Gmo" }
+        };
+
+        private static readonly Dictionary<string, int> MultiKillBosses = new()
+        {
+            { "Konstrukt", 3 },
+            { "Osłabiony Konstrukt", 3 }
+        };
+
+        private static readonly HashSet<string> SingleBosses = new(new[]
+        {
+            "Admirał Utoru", "Angwalf-Htaga", "Aqua Regis", "Bibliotekarz",
+            "Draugul", "Duch Zamku", "Garthmog", "Geomorph", "Herszt",
+            "Heurokratos", "Hvar", "Ichtion", "Ivravul", "Jaskółka",
+            "Jastrzębior", "Krzyżak", "Modliszka", "Mortus", "Nidhogg",
+            "Niedźwiedź", "Obserwator", "Ropucha", "Selena", "Sidraga",
+            "Tygrys", "Utor Komandor", "Valdarog", "Vidvar", "Vough",
+            "Wendigo", "Władca Marionetek"
+        });
+
+        private int? _currentInstanceId;
+        private HashSet<string>[] _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
+        private readonly Dictionary<string, int> _currentMultiKillCounts = new();
+
         public void Start()
         {
             Directory.CreateDirectory(_dataPath);
@@ -145,6 +175,10 @@ namespace BrokenHelper
 
             context.Instances.Add(instance);
             context.SaveChanges();
+
+            _currentInstanceId = instance.Id;
+            _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _currentMultiKillCounts.Clear();
         }
 
         private void HandleFightMessage(string message)
@@ -161,6 +195,7 @@ namespace BrokenHelper
             context.SaveChanges();
 
             var entries = message.Split("[--]", StringSplitOptions.None);
+            var opponentNames = new List<string>();
             foreach (var entry in entries)
             {
                 var fields = entry.Split('&');
@@ -173,11 +208,14 @@ namespace BrokenHelper
                 }
                 else if (fields[0] == "2")
                 {
+                    var name = fields.ElementAtOrDefault(1) ?? string.Empty;
+                    opponentNames.Add(name);
                     HandleFightOpponent(fields, fight, context);
                 }
             }
 
             context.SaveChanges();
+            CheckInstanceCompletion(opponentNames, fightTime, context);
         }
 
         private void HandleFightOpponent(string[] parts, Models.FightEntity fight, Models.GameDbContext context)
@@ -350,6 +388,64 @@ namespace BrokenHelper
                 };
                 context.Drops.Add(drop);
             }
+        }
+
+        private void CheckInstanceCompletion(IEnumerable<string> opponentNames, DateTime fightTime, Models.GameDbContext context)
+        {
+            if (_currentInstanceId == null)
+                return;
+
+            foreach (var name in opponentNames)
+            {
+                if (MultiKillBosses.TryGetValue(name, out var required))
+                {
+                    _currentMultiKillCounts.TryGetValue(name, out var count);
+                    count++;
+                    _currentMultiKillCounts[name] = count;
+                    if (count >= required)
+                    {
+                        CloseCurrentInstance(fightTime, context);
+                    }
+                    continue;
+                }
+
+                bool grouped = false;
+                for (int i = 0; i < BossGroups.Length; i++)
+                {
+                    if (BossGroups[i].Contains(name))
+                    {
+                        _currentGroupProgress[i].Add(name);
+                        if (_currentGroupProgress[i].Count == BossGroups[i].Length)
+                        {
+                            CloseCurrentInstance(fightTime, context);
+                        }
+                        grouped = true;
+                        break;
+                    }
+                }
+
+                if (!grouped && SingleBosses.Contains(name))
+                {
+                    CloseCurrentInstance(fightTime, context);
+                }
+            }
+        }
+
+        private void CloseCurrentInstance(DateTime time, Models.GameDbContext context)
+        {
+            if (_currentInstanceId == null)
+                return;
+
+            var instance = context.Instances.FirstOrDefault(i => i.Id == _currentInstanceId.Value);
+            if (instance != null && instance.EndTime == null)
+            {
+                instance.EndTime = time;
+                context.SaveChanges();
+            }
+
+            _currentInstanceId = null;
+            _currentMultiKillCounts.Clear();
+            _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
         }
 
         private static void HandleItemPriceMessage(string message)
