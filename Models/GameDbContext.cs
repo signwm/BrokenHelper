@@ -42,9 +42,6 @@ namespace BrokenHelper.Models
                 .IsUnique();
 
             modelBuilder.Entity<ItemPriceEntity>()
-                .HasIndex(p => p.Code)
-                .IsUnique();
-            modelBuilder.Entity<ItemPriceEntity>()
                 .HasIndex(p => p.Name)
                 .IsUnique();
 

@@ -113,7 +113,7 @@ namespace BrokenHelper
 
         private void HandleInstanceMessage(string message)
         {
-            var parts = message.Split('$');
+            var parts = message.Split("[$]", StringSplitOptions.None);
             if (parts.Length <= 9)
                 return;
 
@@ -137,7 +137,7 @@ namespace BrokenHelper
             var instance = new Models.InstanceEntity
             {
                 PublicId = publicId,
-                Name = parts[9],
+                Name = parts[10],
                 Difficulty = int.TryParse(parts[3], out var diff) ? diff : 0,
                 StartTime = startTime,
                 EndTime = null
@@ -160,10 +160,10 @@ namespace BrokenHelper
             context.Fights.Add(fight);
             context.SaveChanges();
 
-            var entries = message.Split("[--]", StringSplitOptions.RemoveEmptyEntries);
+            var entries = message.Split("[--]", StringSplitOptions.None);
             foreach (var entry in entries)
             {
-                var fields = entry.Split('$');
+                var fields = entry.Split('&');
                 if (fields.Length == 0)
                     continue;
 
@@ -238,6 +238,8 @@ namespace BrokenHelper
             ParseDrifs(parts.ElementAtOrDefault(25), fightPlayer, context);
             ParseEquipment(parts.ElementAtOrDefault(7), fightPlayer, context);
             ParseEquipment(parts.ElementAtOrDefault(27), fightPlayer, context);
+
+            context.SaveChanges();
         }
 
         private static string[] SplitEntries(string? value)
@@ -364,9 +366,6 @@ namespace BrokenHelper
 
                     var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
 
-                    if (context.ArtifactPrices.Any(p => p.Code == code || p.Name == name))
-                        continue;
-
                     var price = new Models.ArtifactPriceEntity
                     {
                         Code = code,
@@ -380,17 +379,12 @@ namespace BrokenHelper
                     if (parts.Length < 3)
                         continue;
 
-                    var code = parts[0];
                     var name = parts[1];
                     if (!int.TryParse(parts[2], out var value))
                         value = 0;
 
-                    if (context.ItemPrices.Any(p => p.Code == code || p.Name == name))
-                        continue;
-
                     var price = new Models.ItemPriceEntity
                     {
-                        Code = code,
                         Name = name,
                         Value = value
                     };
