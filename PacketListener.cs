@@ -94,19 +94,19 @@ namespace BrokenHelper
 
                 if (prefix == "1;118;")
                 {
-                    HandleInstanceMessage(rest);
+                    SafeHandle(() => HandleInstanceMessage(rest), prefix);
                 }
                 else if (prefix == "3;19;")
                 {
-                    HandleFightMessage(rest);
+                    SafeHandle(() => HandleFightMessage(rest), prefix);
                 }
                 else if (prefix == "36;0;")
                 {
-                    HandleItemPriceMessage(rest);
+                    SafeHandle(() => HandleItemPriceMessage(rest), prefix);
                 }
                 else if (prefix == "50;0;")
                 {
-                    HandleArtifactPriceMessage(rest);
+                    SafeHandle(() => HandleArtifactPriceMessage(rest), prefix);
                 }
             }
         }
@@ -389,9 +389,9 @@ namespace BrokenHelper
                     if (parts.Length < 3)
                         continue;
 
-                    var name = parts[1];
-                    if (!int.TryParse(parts[2], out var value))
+                    if (!int.TryParse(parts[1], out var value))
                         value = 0;
+                    var name = parts.Length >= 3 ? string.Join(',', parts.Skip(2)) : parts[^1];
 
                     var existing = context.ItemPrices.FirstOrDefault(p => p.Name == name);
                     if (existing == null)
@@ -411,6 +411,18 @@ namespace BrokenHelper
             }
 
             context.SaveChanges();
+        }
+
+        private static void SafeHandle(Action action, string prefix)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error handling packet {prefix}: {ex.Message}");
+            }
         }
     }
 }
