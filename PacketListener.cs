@@ -387,6 +387,7 @@ namespace BrokenHelper
                 var afterThird = segments[3];
                 var valueSegments = afterThird.Split('$');
                 int? valueField = null;
+                int? ornamentField = null;
                 if (valueSegments.Length >= 3)
                 {
                     var third = valueSegments[2];
@@ -394,6 +395,10 @@ namespace BrokenHelper
                     if (thirdParts.Length >= 4 && int.TryParse(thirdParts[3], out var val))
                     {
                         valueField = val;
+                    }
+                    if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
+                    {
+                        ornamentField = orn;
                     }
                 }
 
@@ -403,7 +408,8 @@ namespace BrokenHelper
                     DropType = Models.DropType.Equipment,
                     Name = name,
                     Rank = quality,
-                    Value = valueField
+                    Value = valueField,
+                    OrnamentCount = ornamentField
                 };
                 context.Drops.Add(drop);
             }
