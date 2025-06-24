@@ -366,13 +366,23 @@ namespace BrokenHelper
 
                     var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
 
-                    var price = new Models.ArtifactPriceEntity
+                    var existing = context.ArtifactPrices.FirstOrDefault(p => p.Name == name);
+                    if (existing == null)
                     {
-                        Code = code,
-                        Value = value,
-                        Name = name
-                    };
-                    context.ArtifactPrices.Add(price);
+                        var price = new Models.ArtifactPriceEntity
+                        {
+                            Code = code,
+                            Value = value,
+                            Name = name
+                        };
+                        context.ArtifactPrices.Add(price);
+                    }
+                    else
+                    {
+                        existing.Code = code;
+                        existing.Value = value;
+                        existing.Name = name;
+                    }
                 }
                 else
                 {
@@ -383,12 +393,20 @@ namespace BrokenHelper
                     if (!int.TryParse(parts[2], out var value))
                         value = 0;
 
-                    var price = new Models.ItemPriceEntity
+                    var existing = context.ItemPrices.FirstOrDefault(p => p.Name == name);
+                    if (existing == null)
                     {
-                        Name = name,
-                        Value = value
-                    };
-                    context.ItemPrices.Add(price);
+                        var price = new Models.ItemPriceEntity
+                        {
+                            Name = name,
+                            Value = value
+                        };
+                        context.ItemPrices.Add(price);
+                    }
+                    else
+                    {
+                        existing.Value = value;
+                    }
                 }
             }
 
