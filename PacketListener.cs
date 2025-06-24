@@ -352,17 +352,18 @@ namespace BrokenHelper
                     continue;
 
                 var parts = entry.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 2)
-                    continue;
-
-                var code = parts[0];
-                if (!int.TryParse(parts[1], out var value))
-                    value = 0;
-
-                var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
 
                 if (artifact)
                 {
+                    if (parts.Length < 2)
+                        continue;
+
+                    var code = parts[0];
+                    if (!int.TryParse(parts[1], out var value))
+                        value = 0;
+
+                    var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
+
                     if (context.ArtifactPrices.Any(p => p.Code == code || p.Name == name))
                         continue;
 
@@ -376,14 +377,22 @@ namespace BrokenHelper
                 }
                 else
                 {
+                    if (parts.Length < 3)
+                        continue;
+
+                    var code = parts[0];
+                    var name = parts[1];
+                    if (!int.TryParse(parts[2], out var value))
+                        value = 0;
+
                     if (context.ItemPrices.Any(p => p.Code == code || p.Name == name))
                         continue;
 
                     var price = new Models.ItemPriceEntity
                     {
                         Code = code,
-                        Value = value,
-                        Name = name
+                        Name = name,
+                        Value = value
                     };
                     context.ItemPrices.Add(price);
                 }
