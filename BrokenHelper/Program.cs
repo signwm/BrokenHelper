@@ -1,12 +1,15 @@
 using System;
+using System.Windows.Forms;
 
 namespace BrokenHelper
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        [STAThread]
+        static void Main()
         {
-            Console.WriteLine("Hello from BrokenHelper on .NET 8 Windows!");
+            ApplicationConfiguration.Initialize();
+            Application.Run(new MainForm());
         }
     }
 }
