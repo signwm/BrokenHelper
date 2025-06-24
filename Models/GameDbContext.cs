@@ -51,6 +51,7 @@ namespace BrokenHelper.Models
             modelBuilder.Entity<ArtifactPriceEntity>()
                 .HasIndex(p => p.Name)
                 .IsUnique();
+
         }
     }
 }

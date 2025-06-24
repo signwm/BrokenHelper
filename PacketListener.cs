@@ -415,9 +415,9 @@ namespace BrokenHelper
                     if (parts.Length < 3)
                         continue;
 
-                    if (!int.TryParse(parts[1], out var value))
+                    var name = parts[1];
+                    if (!int.TryParse(parts[2], out var value))
                         value = 0;
-                    var name = parts.Length >= 3 ? string.Join(',', parts.Skip(2)) : parts[^1];
 
                     // look for an existing entry in the local context first
                     var existing = context.ItemPrices.Local

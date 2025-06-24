@@ -1,5 +1,3 @@
-using System;
-
 namespace BrokenHelper.Models
 {
     public class ItemPriceEntity
