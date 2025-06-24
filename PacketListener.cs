@@ -96,6 +96,10 @@ namespace BrokenHelper
                 {
                     HandleInstanceMessage(rest);
                 }
+                else if (prefix == "36;0;")
+                {
+                    HandlePriceMessage(rest);
+                }
                 else if (prefix == "3;19;")
                 {
                     HandleFightMessage(rest);
@@ -145,6 +149,41 @@ namespace BrokenHelper
 
             context.Instances.Add(instance);
             context.SaveChanges();
+        }
+
+
+        private void HandlePriceMessage(string message)
+        {
+            var parts = message.Split("[&&]", StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0)
+                return;
+
+            using var context = new Models.GameDbContext();
+
+            foreach (var part in parts)
+            {
+                var fields = part.Split(',');
+                if (fields.Length < 3)
+                    continue;
+
+                var name = fields[1];
+                if (!int.TryParse(fields[2], out var value))
+                    continue;
+
+                var existing = context.Prices.FirstOrDefault(p => p.Name == name);
+                if (existing == null)
+                {
+                    context.Prices.Add(new Models.PriceEntity
+                    {
+                        Name = name,
+                        Value = value
+                    });
+                }
+                else
+                {
+                    existing.Value = value;
+                }
+            }
         }
 
         private void HandleFightMessage(string message)
