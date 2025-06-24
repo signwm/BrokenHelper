@@ -389,7 +389,6 @@ namespace BrokenHelper
                     if (parts.Length < 3)
                         continue;
 
-                    Console.WriteLine("y");
                     var name = parts[1];
                     if (!int.TryParse(parts[2], out var value))
                         value = 0;
