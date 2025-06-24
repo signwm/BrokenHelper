@@ -47,6 +47,15 @@ namespace BrokenHelper
         public void Start()
         {
             Directory.CreateDirectory(_dataPath);
+            using (var context = new Models.GameDbContext())
+            {
+                var openInstance = context.Instances.FirstOrDefault(i => i.EndTime == null);
+                if (openInstance != null)
+                {
+                    _currentInstanceId = openInstance.Id;
+                }
+            }
+
             var devices = CaptureDeviceList.Instance;
             _device = devices.FirstOrDefault(d => d.Description?.Contains("Wi-Fi", StringComparison.OrdinalIgnoreCase) == true)
                       ?? devices.FirstOrDefault();
