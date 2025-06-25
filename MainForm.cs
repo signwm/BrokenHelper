@@ -6,6 +6,7 @@ namespace BrokenHelper
     public partial class MainForm : Form
     {
         private PacketListener? _listener;
+        private HudForm? _hud;
 
         private FightsDashboard? _fightsDashboard;
         private InstancesDashboard? _instancesDashboard;
@@ -33,6 +34,19 @@ namespace BrokenHelper
             }
         }
 
+        private void hudCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (hudCheckBox.Checked)
+            {
+                var player = StatsService.GetDefaultPlayerName();
+                _hud = new HudForm(player);
+                _hud.Show();
+            }
+            else
+            {
+                _hud?.Close();
+                _hud = null;
+            }
         private void fightsMenuItem_Click(object sender, EventArgs e)
         {
             _fightsDashboard ??= new FightsDashboard();

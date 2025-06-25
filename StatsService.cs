@@ -229,5 +229,69 @@ namespace BrokenHelper
 
             return new FightsSummary(exp, psycho, gold, dropValue, fightCount, dropsGrouped);
         }
+
+        public static string GetDefaultPlayerName()
+        {
+            using var context = new GameDbContext();
+            return context.Players.Select(p => p.Name).FirstOrDefault() ?? string.Empty;
+        }
+
+        public static FightsSummary? GetLastFightSummary(string playerName)
+        {
+            using var context = new GameDbContext();
+
+            var lastFightId = context.FightPlayers
+                .Include(fp => fp.Fight)
+                .Where(fp => fp.Player.Name == playerName)
+                .OrderByDescending(fp => fp.Fight.EndTime)
+                .Select(fp => fp.FightId)
+                .FirstOrDefault();
+
+            return lastFightId == 0 ? null : SummarizeFights(playerName, new[] { lastFightId });
+        }
+
+        public static InstanceInfo? GetCurrentOrLastInstance(string playerName)
+        {
+            using var context = new GameDbContext();
+
+            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+
+            var instancesQuery = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
+                .OrderByDescending(i => i.StartTime);
+
+            var instance = instancesQuery.FirstOrDefault(i => i.EndTime == null) ?? instancesQuery.FirstOrDefault();
+            if (instance == null)
+                return null;
+
+            var fights = instance.Fights;
+            var playerFights = fights.SelectMany(f => f.Players)
+                .Where(fp => fp.Player.Name == playerName)
+                .ToList();
+            if (playerFights.Count == 0)
+                return null;
+
+            int exp = playerFights.Sum(fp => fp.Exp);
+            int psycho = playerFights.Sum(fp => fp.Psycho);
+            int gold = playerFights.Sum(fp => fp.Gold);
+            int dropsValue = playerFights.SelectMany(fp => fp.Drops)
+                .Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+
+            string duration = instance.EndTime.HasValue
+                ? (instance.EndTime.Value - instance.StartTime).ToString(@"mm\:ss")
+                : (DateTime.Now - instance.StartTime).ToString(@"mm\:ss");
+
+            return new InstanceInfo(
+                instance.StartTime,
+                instance.Name,
+                instance.Difficulty,
+                duration,
+                exp,
+                psycho,
+                gold,
+                dropsValue,
+                fights.Count);
+        }
     }
 }

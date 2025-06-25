@@ -26,6 +26,7 @@ namespace BrokenHelper
         {
             this.startStopButton = new System.Windows.Forms.Button();
             this.statusLabel = new System.Windows.Forms.Label();
+            this.hudCheckBox = new System.Windows.Forms.CheckBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fightsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.instancesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,7 +42,19 @@ namespace BrokenHelper
             this.startStopButton.Text = "Start";
             this.startStopButton.UseVisualStyleBackColor = true;
             this.startStopButton.Click += new System.EventHandler(this.startStopButton_Click);
-            // 
+
+            //
+            // hudCheckBox
+            //
+            this.hudCheckBox.AutoSize = true;
+            this.hudCheckBox.Location = new System.Drawing.Point(12, 90);
+            this.hudCheckBox.Name = "hudCheckBox";
+            this.hudCheckBox.Size = new System.Drawing.Size(89, 24);
+            this.hudCheckBox.TabIndex = 2;
+            this.hudCheckBox.Text = "Show HUD";
+            this.hudCheckBox.UseVisualStyleBackColor = true;
+            this.hudCheckBox.CheckedChanged += new System.EventHandler(this.hudCheckBox_CheckedChanged);
+            //
             // statusLabel
             //
             this.statusLabel.AutoSize = true;
@@ -80,10 +93,12 @@ namespace BrokenHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(200, 128);
+            this.ClientSize = new System.Drawing.Size(200, 160);
             this.Controls.Add(this.statusLabel);
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.hudCheckBox);
+          
             this.Name = "MainForm";
             this.Text = "Packet Listener";
             this.MainMenuStrip = this.menuStrip1;
@@ -97,6 +112,7 @@ namespace BrokenHelper
 
         private System.Windows.Forms.Button startStopButton;
         private System.Windows.Forms.Label statusLabel;
+        private System.Windows.Forms.CheckBox hudCheckBox;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fightsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem instancesMenuItem;
