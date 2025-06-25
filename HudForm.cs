@@ -25,12 +25,12 @@ namespace BrokenHelper
             var screen = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
             Location = new Point(screen.Right - Width - 20, screen.Top + 300);
 
-            BackColor = Color.Fuchsia;
-            TransparencyKey = Color.Fuchsia;
+            BackColor = Color.Black;
+            TransparencyKey = Color.Black;
 
             var panel = new Panel
             {
-                BackColor = Color.FromArgb(120, 0, 0, 0),
+                BackColor = Color.FromArgb(120, 30, 30, 30),
                 Dock = DockStyle.Fill,
                 Padding = new Padding(5)
             };
