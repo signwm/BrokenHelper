@@ -53,6 +53,7 @@ namespace BrokenHelper
             var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
 
             var instances = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Where(i => i.StartTime >= from && i.StartTime <= to)
                 .OrderBy(i => i.StartTime)
@@ -264,6 +265,7 @@ namespace BrokenHelper
             var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
 
             var instancesQuery = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Where(i => i.Fights.Any(f => f.Players.Any(fp => fp.Player.Name == playerName)))
                 .OrderByDescending(i => i.StartTime);
@@ -310,6 +312,7 @@ namespace BrokenHelper
             var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
 
             var instance = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Where(i => i.EndTime != null)
                 .OrderByDescending(i => i.EndTime)
