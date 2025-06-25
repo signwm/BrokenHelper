@@ -40,7 +40,7 @@ namespace BrokenHelper
         }
 
         public static List<InstanceInfo> GetInstances(string playerName,
-            DateTime from, DateTime to, bool onlyWithoutInstance)
+            DateTime from, DateTime to)
         {
             using var context = new GameDbContext();
 
