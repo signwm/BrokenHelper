@@ -167,5 +167,11 @@ namespace BrokenHelper
             _instanceDropValue.Text = "-";
             _instanceDurationValue.Text = "-";
         }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _timer.Stop();
+            base.OnClosed(e);
+        }
     }
 }
