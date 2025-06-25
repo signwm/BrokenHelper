@@ -149,6 +149,10 @@ namespace BrokenHelper
                 _instanceGoldValue.Text = FormatNumber(instance.FoundGold);
                 _instanceDropValue.Text = FormatNumber(instance.DropValue);
                 _instanceDurationValue.Text = instance.Duration;
+
+                var lastFinished = StatsService.GetLastFinishedInstance(player);
+                bool finished = lastFinished != null && lastFinished.Id == instance.Id;
+                _instanceDurationValue.Foreground = finished ? Brushes.LightGreen : Brushes.White;
             }
         }
 
