@@ -66,16 +66,18 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="80" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="80" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap"/>
-                                    <TextBlock Grid.Column="1" Text=" * " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text=" = " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text=" * " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding UnitPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text=" = " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -101,16 +103,18 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="80" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="80" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap"/>
-                                    <TextBlock Grid.Column="1" Text=" * " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text=" = " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text=" * " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding UnitPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text=" = " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -136,16 +140,18 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="80" />
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="80" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap"/>
-                                    <TextBlock Grid.Column="1" Text=" * " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text=" = " HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Quantity}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text=" * " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding UnitPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text=" = " HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding TotalPrice, StringFormat=N0}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
