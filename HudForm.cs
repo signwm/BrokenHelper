@@ -23,7 +23,7 @@ namespace BrokenHelper
             Height = 170;
             StartPosition = FormStartPosition.Manual;
             var screen = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
-            Location = new Point(screen.Right - Width - 20, screen.Top + 300);
+            Location = new Point(screen.Right - Width - 20, (screen.Top - Height) / 2);
 
             BackColor = Color.Black;
             TransparencyKey = Color.Black;
