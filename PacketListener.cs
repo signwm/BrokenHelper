@@ -5,16 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BrokenHelper.PacketHandlers;
 
 namespace BrokenHelper
 {
     internal class PacketListener
     {
-        private ICaptureDevice? _device;
-        private readonly List<byte> _buffer = new();
-        private readonly string _dataPath = Path.Combine("data", "packets");
-
-        private static readonly string[][] BossGroups = new[]
+        internal static readonly string[][] BossGroups = new[]
         {
             new[] { "Duch Ognia", "Duch Energii", "Duch Zimna" },
             new[] { "Babadek", "Gregorius", "Ghadira" },
@@ -23,13 +20,13 @@ namespace BrokenHelper
             new[] { "Fyodor", "Gmo" }
         };
 
-        private static readonly Dictionary<string, int> MultiKillBosses = new()
+        internal static readonly Dictionary<string, int> MultiKillBosses = new()
         {
             { "Konstrukt", 3 },
             { "Osłabiony Konstrukt", 3 }
         };
 
-        private static readonly HashSet<string> SingleBosses = new(new[]
+        internal static readonly HashSet<string> SingleBosses = new(new[]
         {
             "Admirał Utoru", "Angwalf-Htaga", "Aqua Regis", "Bibliotekarz",
             "Draugul", "Duch Zamku", "Garthmog", "Geomorph", "Herszt",
@@ -40,7 +37,7 @@ namespace BrokenHelper
             "Wendigo", "Władca Marionetek"
         });
 
-        private static readonly int[,] QuoteItemCoefficients = new int[,]
+        internal static readonly int[,] QuoteItemCoefficients = new int[,]
         {
             { 4, 4, 4, 20, 20, 20, 67, 67, 67, 351, 351, 351 },
             { 7, 7, 7, 27, 27, 27, 90, 90, 90, 585, 585, 585 },
@@ -53,20 +50,23 @@ namespace BrokenHelper
             { 337, 337, 337, 1687, 1687, 1687, 5850, 5850, 5850, 35100, 35100, 35100 }
         };
 
-        private int? _currentInstanceId;
-        private HashSet<string>[] _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
-        private readonly Dictionary<string, int> _currentMultiKillCounts = new();
+        private ICaptureDevice? _device;
+        private readonly List<byte> _buffer = new();
+        private readonly string _dataPath = Path.Combine("data", "packets");
+        private readonly InstanceHandler _instanceHandler = new();
+        private readonly FightHandler _fightHandler;
+
+        public PacketListener()
+        {
+            _fightHandler = new FightHandler(_instanceHandler);
+        }
 
         public void Start()
         {
             Directory.CreateDirectory(_dataPath);
             using (var context = new Models.GameDbContext())
             {
-                var openInstance = context.Instances.FirstOrDefault(i => i.EndTime == null);
-                if (openInstance != null)
-                {
-                    _currentInstanceId = openInstance.Id;
-                }
+                _instanceHandler.LoadOpenInstance(context);
             }
 
             var devices = CaptureDeviceList.Instance;
@@ -146,482 +146,21 @@ namespace BrokenHelper
 
                 if (prefix == "1;118;")
                 {
-                    SafeHandle(() => HandleInstanceMessage(rest), prefix);
+                    SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest), prefix);
                 }
                 else if (prefix == "3;19;")
                 {
-                    SafeHandle(() => HandleFightMessage(rest), prefix);
+                    SafeHandle(() => _fightHandler.HandleFightMessage(rest), prefix);
                 }
                 else if (prefix == "36;0;")
                 {
-                    SafeHandle(() => HandleItemPriceMessage(rest), prefix);
+                    SafeHandle(() => PriceHandler.HandleItemPriceMessage(rest), prefix);
                 }
                 else if (prefix == "50;0;")
                 {
-                    SafeHandle(() => HandleArtifactPriceMessage(rest), prefix);
+                    SafeHandle(() => PriceHandler.HandleArtifactPriceMessage(rest), prefix);
                 }
             }
-        }
-
-        private void HandleInstanceMessage(string message)
-        {
-            var parts = message.Split("[$]", StringSplitOptions.None);
-            if (parts.Length <= 9)
-                return;
-
-            if (string.IsNullOrEmpty(parts[7]))
-                return;
-
-            var publicId = parts[4];
-            using var context = new Models.GameDbContext();
-
-            if (context.Instances.Any(i => i.PublicId == publicId))
-                return;
-
-            var startTime = DateTime.Now;
-
-            var openInstances = context.Instances.Where(i => i.EndTime == null).ToList();
-            foreach (var inst in openInstances)
-            {
-                inst.EndTime = startTime;
-            }
-
-            var instance = new Models.InstanceEntity
-            {
-                PublicId = publicId,
-                Name = parts[10],
-                Difficulty = int.TryParse(parts[3], out var diff) ? diff : 0,
-                StartTime = startTime,
-                EndTime = null
-            };
-
-            context.Instances.Add(instance);
-            context.SaveChanges();
-
-            _currentInstanceId = instance.Id;
-            _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
-            _currentMultiKillCounts.Clear();
-        }
-
-        private void HandleFightMessage(string message)
-        {
-            using var context = new Models.GameDbContext();
-
-            var fightTime = DateTime.Now;
-
-            var activeInstance = context.Instances
-                .FirstOrDefault(i => i.EndTime == null && i.StartTime <= fightTime);
-            if (activeInstance != null)
-                _currentInstanceId = activeInstance.Id;
-
-            var fight = new Models.FightEntity
-            {
-                EndTime = fightTime,
-                InstanceId = activeInstance?.Id
-            };
-
-            context.Fights.Add(fight);
-            context.SaveChanges();
-
-            var entries = message.Split("[--]", StringSplitOptions.None);
-            var opponentNames = new List<string>();
-            foreach (var entry in entries)
-            {
-                var fields = entry.Split('&');
-                if (fields.Length == 0)
-                    continue;
-
-                if (fields[0] == "1")
-                {
-                    HandleFightPlayer(fields, fight, context);
-                }
-                else if (fields[0] == "2")
-                {
-                    var name = fields.ElementAtOrDefault(1) ?? string.Empty;
-                    opponentNames.Add(name);
-                    HandleFightOpponent(fields, fight, context);
-                }
-            }
-
-            context.SaveChanges();
-            CheckInstanceCompletion(opponentNames, fightTime, context);
-        }
-
-        private void HandleFightOpponent(string[] parts, Models.FightEntity fight, Models.GameDbContext context)
-        {
-            var name = parts.ElementAtOrDefault(1) ?? string.Empty;
-            var level = int.TryParse(parts.ElementAtOrDefault(15), out var lvl) ? lvl : 0;
-
-            var type = context.OpponentTypes.FirstOrDefault(o => o.Name == name && o.Level == level);
-            if (type == null)
-            {
-                type = new Models.OpponentTypeEntity
-                {
-                    Name = name,
-                    Level = level,
-                    IsBoss = false
-                };
-                context.OpponentTypes.Add(type);
-                context.SaveChanges();
-            }
-
-            var localOpponent = context.FightOpponents.Local
-                .FirstOrDefault(o => o.FightId == fight.Id && o.OpponentTypeId == type.Id);
-
-            if (localOpponent != null)
-            {
-                localOpponent.Quantity += 1;
-            }
-            else
-            {
-                var existingOpponent = context.FightOpponents
-                    .FirstOrDefault(o => o.FightId == fight.Id && o.OpponentTypeId == type.Id);
-
-                if (existingOpponent != null)
-                {
-                    existingOpponent.Quantity += 1;
-                }
-                else
-                {
-                    var opponent = new Models.FightOpponentEntity
-                    {
-                        Fight = fight,
-                        OpponentType = type,
-                        Quantity = 1
-                    };
-
-                    context.FightOpponents.Add(opponent);
-                }
-            }
-        }
-
-        private void HandleFightPlayer(string[] parts, Models.FightEntity fight, Models.GameDbContext context)
-        {
-            var name = parts.ElementAtOrDefault(1) ?? string.Empty;
-            var exp = int.TryParse(parts.ElementAtOrDefault(2), out var e) ? e : 0;
-            var gold = int.TryParse(parts.ElementAtOrDefault(4), out var g) ? g : 0;
-            var psycho = int.TryParse(parts.ElementAtOrDefault(24), out var p) ? p : 0;
-
-            var player = context.Players.FirstOrDefault(pl => pl.Name == name);
-            if (player == null)
-            {
-                player = new Models.PlayerEntity { Name = name };
-                context.Players.Add(player);
-                context.SaveChanges();
-            }
-
-            var fightPlayer = new Models.FightPlayerEntity
-            {
-                Fight = fight,
-                Player = player,
-                Exp = exp,
-                Gold = gold,
-                Psycho = psycho
-            };
-
-            context.FightPlayers.Add(fightPlayer);
-
-            ParseItems(parts.ElementAtOrDefault(9), fightPlayer, context);
-            ParseDrifs(parts.ElementAtOrDefault(25), fightPlayer, context);
-            ParseEquipment(parts.ElementAtOrDefault(7), fightPlayer, context, 0.3, true);
-            ParseEquipment(parts.ElementAtOrDefault(27), fightPlayer, context, 0.025, false);
-
-            context.SaveChanges();
-        }
-
-        private static string[] SplitEntries(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return Array.Empty<string>();
-
-            var parts = value.Split(new[] { "  " }, StringSplitOptions.None);
-            var result = new List<string>();
-
-            foreach (var part in parts)
-            {
-                var trimmed = part.Trim();
-                if (!string.IsNullOrEmpty(trimmed))
-                    result.Add(trimmed);
-            }
-
-            return result.ToArray();
-        }
-
-        private static void ParseDrifs(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
-        {
-            foreach (var part in SplitEntries(value))
-            {
-                var name = part.Split("[-]")[0];
-                var drop = new Models.DropEntity
-                {
-                    FightPlayer = fightPlayer,
-                    DropType = Models.DropType.Drif,
-                    Name = name
-                };
-                context.Drops.Add(drop);
-            }
-        }
-
-        private static void ParseItems(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
-        {
-            foreach (var part in SplitEntries(value))
-            {
-                if (string.IsNullOrWhiteSpace(part))
-                    continue;
-
-                var name = part;
-                var qty = 1;
-                var open = part.LastIndexOf('(');
-                var close = part.LastIndexOf(')');
-                if (open > 0 && close > open && int.TryParse(part.Substring(open + 1, close - open - 1), out var q))
-                {
-                    name = part.Substring(0, open);
-                    qty = q;
-                }
-
-                var drop = new Models.DropEntity
-                {
-                    FightPlayer = fightPlayer,
-                    DropType = Models.DropType.Item,
-                    Name = name,
-                    Quantity = qty
-                };
-                context.Drops.Add(drop);
-            }
-        }
-
-        private static void ParseEquipment(string? value,
-            Models.FightPlayerEntity fightPlayer,
-            Models.GameDbContext context,
-            double multiplier,
-            bool special)
-        {
-            foreach (var part in SplitEntries(value))
-            {
-                if (string.IsNullOrWhiteSpace(part))
-                    continue;
-
-                var segments = part.Split("[-]");
-                if (segments.Length < 4)
-                    continue;
-
-                var name = segments[0];
-                var quality = int.TryParse(segments[1], out var q) ? q : (int?)null;
-
-                var afterThird = segments[3];
-                var valueSegments = afterThird.Split('$');
-                int? valueField = null;
-                int? ornamentField = null;
-                if (valueSegments.Length >= 3)
-                {
-                    var third = valueSegments[2];
-                    var thirdParts = third.Split(',');
-                    if (thirdParts.Length >= 4 && int.TryParse(thirdParts[3], out var val))
-                    {
-                        valueField = (int)Math.Round(val * multiplier);
-                    }
-                    if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
-                    {
-                        ornamentField = orn;
-                    }
-                }
-
-                if (special)
-                {
-                    var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
-                    var essencePrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Esencja")?.Value ?? 0;
-
-                    if (name.Contains('"'))
-                    {
-                        if (ornamentField.HasValue && quality.HasValue &&
-                            ornamentField.Value >= 0 && ornamentField.Value < QuoteItemCoefficients.GetLength(0) &&
-                            quality.Value >= 1 && quality.Value <= QuoteItemCoefficients.GetLength(1))
-                        {
-                            int coef = QuoteItemCoefficients[ornamentField.Value, quality.Value - 1];
-                            var basePrice = quality.Value >= 7 ? shardPrice : essencePrice;
-                            valueField = coef * basePrice;
-                        }
-                    }
-                    else if (name.Contains("Smoków"))
-                    {
-                        valueField = 12 * shardPrice;
-                    }
-                    else if (name.Contains("Vorlingów") || name.Contains("Lodu"))
-                    {
-                        valueField = 30 * shardPrice;
-                    }
-                    else if (name.Contains("Władców"))
-                    {
-                        valueField = 150 * shardPrice;
-                    }
-                    else if (name.Contains("Dawnych Orków"))
-                    {
-                        valueField = 60 * shardPrice;
-                    }
-                }
-
-                var drop = new Models.DropEntity
-                {
-                    FightPlayer = fightPlayer,
-                    DropType = Models.DropType.Equipment,
-                    Name = name,
-                    Rank = quality,
-                    Value = valueField,
-                    OrnamentCount = ornamentField
-                };
-                context.Drops.Add(drop);
-            }
-        }
-
-        private void CheckInstanceCompletion(IEnumerable<string> opponentNames, DateTime fightTime, Models.GameDbContext context)
-        {
-            if (_currentInstanceId == null)
-                return;
-
-            foreach (var name in opponentNames)
-            {
-                if (MultiKillBosses.TryGetValue(name, out var required))
-                {
-                    _currentMultiKillCounts.TryGetValue(name, out var count);
-                    count++;
-                    _currentMultiKillCounts[name] = count;
-                    if (count >= required)
-                    {
-                        CloseCurrentInstance(fightTime, context);
-                    }
-                    continue;
-                }
-
-                bool grouped = false;
-                for (int i = 0; i < BossGroups.Length; i++)
-                {
-                    if (BossGroups[i].Contains(name))
-                    {
-                        _currentGroupProgress[i].Add(name);
-                        if (_currentGroupProgress[i].Count == BossGroups[i].Length)
-                        {
-                            CloseCurrentInstance(fightTime, context);
-                        }
-                        grouped = true;
-                        break;
-                    }
-                }
-
-                if (!grouped && SingleBosses.Contains(name))
-                {
-                    CloseCurrentInstance(fightTime, context);
-                }
-            }
-        }
-
-        private void CloseCurrentInstance(DateTime time, Models.GameDbContext context)
-        {
-            if (_currentInstanceId == null)
-                return;
-
-            var instance = context.Instances.FirstOrDefault(i => i.Id == _currentInstanceId.Value);
-            if (instance != null && instance.EndTime == null)
-            {
-                instance.EndTime = time;
-                context.SaveChanges();
-            }
-
-            _currentInstanceId = null;
-            _currentMultiKillCounts.Clear();
-            _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
-        }
-
-        private static void HandleItemPriceMessage(string message)
-        {
-            ParsePrices(message, false);
-        }
-
-        private static void HandleArtifactPriceMessage(string message)
-        {
-            ParsePrices(message, true);
-        }
-
-        private static void ParsePrices(string message, bool artifact)
-        {
-            var entries = message.Split("[&&]", StringSplitOptions.None);
-
-            using var context = new Models.GameDbContext();
-            foreach (var entryRaw in entries)
-            {
-                var entry = entryRaw.Trim();
-                if (!entry.Contains(','))
-                    continue;
-
-                var parts = entry.Split(',', StringSplitOptions.None);
-
-                if (artifact)
-                {
-                    if (parts.Length < 2)
-                        continue;
-
-                    var code = parts[0];
-                    if (!int.TryParse(parts[1], out var value))
-                        value = 0;
-
-                    var name = parts.Length >= 5 ? string.Join(',', parts.Skip(4)) : parts[^1];
-
-                    // first check the local cache for an existing entry
-                    var existing = context.ArtifactPrices.Local
-                        .FirstOrDefault(p => p.Code == code || p.Name == name);
-                    // if not found locally, query the database
-                    existing ??= context.ArtifactPrices
-                        .FirstOrDefault(p => p.Code == code || p.Name == name);
-
-                    if (existing == null)
-                    {
-                        var price = new Models.ArtifactPriceEntity
-                        {
-                            Code = code,
-                            Value = value,
-                            Name = name
-                        };
-                        context.ArtifactPrices.Add(price);
-                    }
-                    else
-                    {
-                        existing.Code = code;
-                        existing.Value = value;
-                        existing.Name = name;
-                    }
-                }
-                else
-                {
-                    if (parts.Length < 3)
-                        continue;
-
-                    var name = parts[1];
-                    if (!int.TryParse(parts[2], out var value))
-                        value = 0;
-
-                    // look for an existing entry in the local context first
-                    var existing = context.ItemPrices.Local
-                        .FirstOrDefault(p => p.Name == name);
-                    // fall back to querying the database if none was found locally
-                    existing ??= context.ItemPrices
-                        .FirstOrDefault(p => p.Name == name);
-
-                    if (existing == null)
-                    {
-                        var price = new Models.ItemPriceEntity
-                        {
-                            Name = name,
-                            Value = value
-                        };
-                        context.ItemPrices.Add(price);
-                    }
-                    else
-                    {
-                        existing.Value = value;
-                    }
-                }
-            }
-
-            context.SaveChanges();
         }
 
         private static void SafeHandle(Action action, string prefix)
