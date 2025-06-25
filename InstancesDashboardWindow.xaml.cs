@@ -51,10 +51,30 @@ namespace BrokenHelper
         {
             var selected = grid.SelectedItems.Cast<InstanceInfo>().ToList();
             if (selected.Count == 0) return;
-            var fightIds = selected.SelectMany(i => StatsService.GetFights(GetPlayerName(), i.Id)).Select(f => f.Id);
+
+            var fightIds = selected.SelectMany(i => StatsService.GetFights(GetPlayerName(), i.Id))
+                .Select(f => f.Id)
+                .ToList();
             var summary = StatsService.SummarizeFights(GetPlayerName(), fightIds);
-            var drops = string.Join("\n", summary.Drops.Select(d => $"{d.Name}: {d.Quantity} (wartość {d.Value})"));
-            MessageBox.Show($"Instancji: {selected.Count}\nWalki: {summary.FightCount}\nExp: {summary.EarnedExp}\nPsycho: {summary.EarnedPsycho}\nGold: {summary.FoundGold}\nDrop: {summary.DropValue}\n\n{drops}", "Podsumowanie");
+            var details = StatsService.GetDropDetails(GetPlayerName(), fightIds);
+
+            var vm = new PodsumowanieViewModel
+            {
+                InstanceCount = selected.Count,
+                FightCount = summary.FightCount,
+                TotalGold = summary.FoundGold,
+                TotalExp = summary.EarnedExp,
+                TotalPsycho = summary.EarnedPsycho,
+                TotalProfit = summary.FoundGold + summary.DropValue
+            };
+            vm.LoadData(details);
+
+            var window = new Views.PanelPodsumowania
+            {
+                DataContext = vm,
+                Owner = this
+            };
+            window.ShowDialog();
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)

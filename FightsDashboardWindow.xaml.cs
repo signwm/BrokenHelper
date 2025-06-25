@@ -53,9 +53,28 @@ namespace BrokenHelper
         {
             var selected = grid.SelectedItems.Cast<FightInfo>().ToList();
             if (selected.Count == 0) return;
-            var summary = StatsService.SummarizeFights(GetPlayerName(), selected.Select(f => f.Id));
-            var drops = string.Join("\n", summary.Drops.Select(d => $"{d.Name}: {d.Quantity} (wartość {d.Value})"));
-            MessageBox.Show($"Walk: {summary.FightCount}\nExp: {summary.EarnedExp}\nPsycho: {summary.EarnedPsycho}\nGold: {summary.FoundGold}\nDrop: {summary.DropValue}\n\n{drops}", "Podsumowanie");
+
+            var fightIds = selected.Select(f => f.Id).ToList();
+            var summary = StatsService.SummarizeFights(GetPlayerName(), fightIds);
+            var details = StatsService.GetDropDetails(GetPlayerName(), fightIds);
+
+            var vm = new PodsumowanieViewModel
+            {
+                InstanceCount = selected.Select(f => f.InstanceId).Distinct().Count(id => id != null),
+                FightCount = summary.FightCount,
+                TotalGold = summary.FoundGold,
+                TotalExp = summary.EarnedExp,
+                TotalPsycho = summary.EarnedPsycho,
+                TotalProfit = summary.FoundGold + summary.DropValue
+            };
+            vm.LoadData(details);
+
+            var window = new Views.PanelPodsumowania
+            {
+                DataContext = vm,
+                Owner = this
+            };
+            window.ShowDialog();
         }
 
         private void CreateInstance_Click(object sender, RoutedEventArgs e)
