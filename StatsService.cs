@@ -12,7 +12,7 @@ namespace BrokenHelper
 
     public record FightInfo(int Id, DateTime Time, List<string> Players,
         List<string> Opponents, int EarnedExp, int EarnedPsycho,
-        int FoundGold, int DropValue, string Drops)
+        int FoundGold, int DropValue, string Drops, int? InstanceId)
     {
         public string PlayersText => string.Join(", ", Players);
         public string OpponentsText => string.Join(", ", Opponents);
@@ -25,6 +25,7 @@ namespace BrokenHelper
 
     public static class StatsService
     {
+        public static string LastInstanceName { get; set; } = string.Empty;
         private static int GetDropValue(DropEntity drop,
             IReadOnlyDictionary<string, int> itemPrices,
             IReadOnlyDictionary<string, int> artifactPrices)
@@ -124,7 +125,7 @@ namespace BrokenHelper
                 var my = fight.Players.FirstOrDefault(fp => fp.Player.Name == playerName);
                 if (my == null)
                 {
-                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
+                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty, fight.InstanceId));
                     continue;
                 }
 
@@ -145,7 +146,8 @@ namespace BrokenHelper
                     my.Psycho,
                     my.Gold,
                     dropsValue,
-                    dropsText));
+                    dropsText,
+                    fight.InstanceId));
             }
 
             return result;
@@ -177,7 +179,7 @@ namespace BrokenHelper
                 var my = fight.Players.FirstOrDefault(fp => fp.Player.Name == playerName);
                 if (my == null)
                 {
-                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
+                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty, fight.InstanceId));
                     continue;
                 }
 
@@ -198,7 +200,8 @@ namespace BrokenHelper
                     my.Psycho,
                     my.Gold,
                     dropsValue,
-                    dropsText));
+                    dropsText,
+                    fight.InstanceId));
             }
 
             return result;
@@ -341,6 +344,34 @@ namespace BrokenHelper
                 gold,
                 dropsValue,
                 fights.Count);
+        }
+
+        public static void CreateInstance(string name, int difficulty,
+            DateTime startTime, DateTime? endTime, IEnumerable<int> fightIds)
+        {
+            using var context = new GameDbContext();
+
+            string publicId = "999" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            var instance = new InstanceEntity
+            {
+                PublicId = publicId,
+                Name = name,
+                Difficulty = difficulty,
+                StartTime = startTime,
+                EndTime = endTime
+            };
+
+            context.Instances.Add(instance);
+            context.SaveChanges();
+
+            var fights = context.Fights.Where(f => fightIds.Contains(f.Id)).ToList();
+            foreach (var fight in fights)
+            {
+                fight.InstanceId = instance.Id;
+            }
+
+            context.SaveChanges();
         }
     }
 }

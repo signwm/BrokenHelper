@@ -57,5 +57,31 @@ namespace BrokenHelper
             var drops = string.Join("\n", summary.Drops.Select(d => $"{d.Name}: {d.Quantity} (wartość {d.Value})"));
             MessageBox.Show($"Walk: {summary.FightCount}\nExp: {summary.EarnedExp}\nPsycho: {summary.EarnedPsycho}\nGold: {summary.FoundGold}\nDrop: {summary.DropValue}\n\n{drops}", "Podsumowanie");
         }
+
+        private void CreateInstance_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = grid.SelectedItems.Cast<FightInfo>().ToList();
+            if (selected.Count == 0)
+                return;
+
+            if (selected.Any(f => f.InstanceId != null))
+            {
+                MessageBox.Show("Wszystkie zaznaczone walki muszą być bez instancji");
+                return;
+            }
+
+            var start = selected.Min(f => f.Time).AddSeconds(-10);
+            var end = selected.Max(f => f.Time);
+            var window = new CreateInstanceWindow(StatsService.LastInstanceName, start, end)
+            {
+                Owner = this
+            };
+            if (window.ShowDialog() == true)
+            {
+                StatsService.LastInstanceName = window.InstanceName;
+                StatsService.CreateInstance(window.InstanceName, window.Difficulty, window.StartTime, window.EndTime, selected.Select(f => f.Id));
+                RefreshData();
+            }
+        }
     }
 }
