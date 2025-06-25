@@ -142,9 +142,22 @@ namespace BrokenHelper
         private void AdjustWidth()
         {
             _grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-            int width = _grid.RowHeadersWidth + _grid.Columns.Cast<DataGridViewColumn>().Sum(c => c.Width);
-            width += SystemInformation.VerticalScrollBarWidth;
+            int columnsWidth = _grid.Columns.Cast<DataGridViewColumn>().Sum(c => c.Width);
+            int width = _grid.RowHeadersWidth + columnsWidth + SystemInformation.VerticalScrollBarWidth;
             Width = width + (Width - ClientSize.Width);
+
+            if (_grid.RowCount > _grid.DisplayedRowCount(true))
+            {
+                int available = _grid.ClientSize.Width - SystemInformation.VerticalScrollBarWidth;
+                if (columnsWidth > available)
+                {
+                    float scale = (float)available / columnsWidth;
+                    foreach (DataGridViewColumn col in _grid.Columns)
+                    {
+                        col.Width = (int)(col.Width * scale);
+                    }
+                }
+            }
         }
     }
 }
