@@ -232,8 +232,7 @@ namespace BrokenHelper
 
         public static string GetDefaultPlayerName()
         {
-            using var context = new GameDbContext();
-            return context.Players.Select(p => p.Name).FirstOrDefault() ?? string.Empty;
+            return "Sign";
         }
 
         public static FightsSummary? GetLastFightSummary(string playerName)
