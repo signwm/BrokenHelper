@@ -346,7 +346,7 @@ namespace BrokenHelper
 
             var fights = instance.Fights;
             var playerFights = fights.SelectMany(f => f.Players)
-                .Where(fp => fp.Player.Name == playerName)
+                .Where(fp => fp.Player != null && fp.Player.Name == playerName)
                 .ToList();
             if (playerFights.Count == 0)
                 return null;
