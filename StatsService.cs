@@ -258,6 +258,7 @@ namespace BrokenHelper
 
             var instancesQuery = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
+                .Where(i => i.Fights.Any(f => f.Players.Any(fp => fp.Player.Name == playerName)))
                 .OrderByDescending(i => i.StartTime);
 
             var instance = instancesQuery.FirstOrDefault(i => i.EndTime == null) ?? instancesQuery.FirstOrDefault();
