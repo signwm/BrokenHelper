@@ -6,6 +6,7 @@ namespace BrokenHelper
     public partial class MainForm : Form
     {
         private PacketListener? _listener;
+        private HudForm? _hud;
 
         public MainForm()
         {
@@ -27,6 +28,21 @@ namespace BrokenHelper
                 _listener = null;
                 startStopButton.Text = "Start";
                 statusLabel.Text = "Stopped";
+            }
+        }
+
+        private void hudCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (hudCheckBox.Checked)
+            {
+                var player = StatsService.GetDefaultPlayerName();
+                _hud = new HudForm(player);
+                _hud.Show();
+            }
+            else
+            {
+                _hud?.Close();
+                _hud = null;
             }
         }
     }
