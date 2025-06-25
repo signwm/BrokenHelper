@@ -58,6 +58,12 @@ namespace BrokenHelper
             var summary = StatsService.SummarizeFights(GetPlayerName(), fightIds);
             var details = StatsService.GetDropDetails(GetPlayerName(), fightIds);
 
+            var totalDuration = TimeSpan.Zero;
+            foreach (var inst in selected)
+            {
+                totalDuration += StatsService.GetInstanceDuration(inst.Id);
+            }
+
             var vm = new PodsumowanieViewModel
             {
                 InstanceCount = selected.Count,
@@ -66,7 +72,8 @@ namespace BrokenHelper
                 TotalExp = summary.EarnedExp,
                 TotalPsycho = summary.EarnedPsycho,
                 TotalDropValue = summary.DropValue,
-                TotalProfit = summary.FoundGold + summary.DropValue
+                TotalProfit = summary.FoundGold + summary.DropValue,
+                TotalInstanceTime = FormatDuration(totalDuration)
             };
             vm.LoadData(details);
 
@@ -90,6 +97,13 @@ namespace BrokenHelper
 
             StatsService.DeleteInstances(selected.Select(i => i.Id));
             RefreshData();
+        }
+
+        private static string FormatDuration(TimeSpan time)
+        {
+            int minutes = (int)time.TotalMinutes;
+            int seconds = time.Seconds;
+            return $"{minutes}:{seconds:00}";
         }
     }
 }

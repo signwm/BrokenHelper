@@ -489,6 +489,18 @@ namespace BrokenHelper
             context.SaveChanges();
         }
 
+        public static TimeSpan GetInstanceDuration(int instanceId)
+        {
+            using var context = new GameDbContext();
+            var instance = context.Instances
+                .FirstOrDefault(i => i.Id == instanceId);
+            if (instance == null)
+                return TimeSpan.Zero;
+
+            var end = instance.EndTime ?? DateTime.Now;
+            return end - instance.StartTime;
+        }
+
         private static readonly int[,] QuoteItemCoefficients = new int[,]
         {
             { 4, 4, 4, 20, 20, 20, 67, 67, 67, 351, 351, 351 },

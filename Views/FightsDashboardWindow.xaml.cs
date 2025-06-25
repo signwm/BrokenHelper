@@ -58,15 +58,27 @@ namespace BrokenHelper
             var summary = StatsService.SummarizeFights(GetPlayerName(), fightIds);
             var details = StatsService.GetDropDetails(GetPlayerName(), fightIds);
 
+            var instanceIds = selected.Select(f => f.InstanceId)
+                .Where(id => id != null)
+                .Distinct()
+                .Select(id => id!.Value)
+                .ToList();
+            var totalDuration = TimeSpan.Zero;
+            foreach (var id in instanceIds)
+            {
+                totalDuration += StatsService.GetInstanceDuration(id);
+            }
+
             var vm = new PodsumowanieViewModel
             {
-                InstanceCount = selected.Select(f => f.InstanceId).Distinct().Count(id => id != null),
+                InstanceCount = instanceIds.Count,
                 FightCount = summary.FightCount,
                 TotalGold = summary.FoundGold,
                 TotalExp = summary.EarnedExp,
                 TotalPsycho = summary.EarnedPsycho,
                 TotalDropValue = summary.DropValue,
-                TotalProfit = summary.FoundGold + summary.DropValue
+                TotalProfit = summary.FoundGold + summary.DropValue,
+                TotalInstanceTime = FormatDuration(totalDuration)
             };
             vm.LoadData(details);
 
@@ -116,6 +128,13 @@ namespace BrokenHelper
 
             StatsService.DeleteFights(selected.Select(f => f.Id));
             RefreshData();
+        }
+
+        private static string FormatDuration(TimeSpan time)
+        {
+            int minutes = (int)time.TotalMinutes;
+            int seconds = time.Seconds;
+            return $"{minutes}:{seconds:00}";
         }
     }
 }

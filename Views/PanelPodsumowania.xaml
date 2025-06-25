@@ -49,6 +49,9 @@
 
                         <TextBlock Text="Całkowity zarobek:" />
                         <TextBlock Text="{Binding TotalProfit, Converter={StaticResource Sep}}" TextAlignment="Right"/>
+
+                        <TextBlock Text="Całkowity czas instancji:" />
+                        <TextBlock Text="{Binding TotalInstanceTime}" TextAlignment="Right"/>
                     </UniformGrid>
                 </StackPanel>
             </Border>
