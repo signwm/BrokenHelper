@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokenHelper
 {
-    public record InstanceInfo(DateTime StartTime, string Name, int Difficulty,
-        string Duration, int EarnedExp, int EarnedPsycho, int FoundGold,
-        int DropValue, int FightCount);
+    public record InstanceInfo(int Id, DateTime StartTime, string Name,
+        int Difficulty, string Duration, int EarnedExp, int EarnedPsycho,
+        int FoundGold, int DropValue, int FightCount);
 
-    public record FightInfo(DateTime Time, List<string> Players,
+    public record FightInfo(int Id, DateTime Time, List<string> Players,
         List<string> Opponents, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, string Drops);
 
@@ -72,6 +72,7 @@ namespace BrokenHelper
                     : (DateTime.Now - instance.StartTime).ToString(@"mm\:ss");
 
                 result.Add(new InstanceInfo(
+                    instance.Id,
                     instance.StartTime,
                     instance.Name,
                     instance.Difficulty,
@@ -119,7 +120,7 @@ namespace BrokenHelper
                 var my = fight.Players.FirstOrDefault(fp => fp.Player.Name == playerName);
                 if (my == null)
                 {
-                    result.Add(new FightInfo(fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
+                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
                     continue;
                 }
 
@@ -132,6 +133,7 @@ namespace BrokenHelper
                 }));
 
                 result.Add(new FightInfo(
+                    fight.Id,
                     fight.EndTime,
                     players,
                     opponents,
@@ -171,7 +173,7 @@ namespace BrokenHelper
                 var my = fight.Players.FirstOrDefault(fp => fp.Player.Name == playerName);
                 if (my == null)
                 {
-                    result.Add(new FightInfo(fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
+                    result.Add(new FightInfo(fight.Id, fight.EndTime, players, opponents, 0, 0, 0, 0, string.Empty));
                     continue;
                 }
 
@@ -184,6 +186,7 @@ namespace BrokenHelper
                 }));
 
                 result.Add(new FightInfo(
+                    fight.Id,
                     fight.EndTime,
                     players,
                     opponents,

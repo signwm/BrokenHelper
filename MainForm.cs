@@ -7,6 +7,9 @@ namespace BrokenHelper
     {
         private PacketListener? _listener;
 
+        private FightsDashboard? _fightsDashboard;
+        private InstancesDashboard? _instancesDashboard;
+
         public MainForm()
         {
             InitializeComponent();
@@ -28,6 +31,20 @@ namespace BrokenHelper
                 startStopButton.Text = "Start";
                 statusLabel.Text = "Stopped";
             }
+        }
+
+        private void fightsMenuItem_Click(object sender, EventArgs e)
+        {
+            _fightsDashboard ??= new FightsDashboard();
+            _fightsDashboard.Show();
+            _fightsDashboard.BringToFront();
+        }
+
+        private void instancesMenuItem_Click(object sender, EventArgs e)
+        {
+            _instancesDashboard ??= new InstancesDashboard();
+            _instancesDashboard.Show();
+            _instancesDashboard.BringToFront();
         }
     }
 }
