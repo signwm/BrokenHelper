@@ -49,14 +49,22 @@ namespace BrokenHelper
 
         private void FightsMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            _fightsDashboard ??= new FightsDashboardWindow();
+            if (_fightsDashboard == null)
+            {
+                _fightsDashboard = new FightsDashboardWindow();
+                _fightsDashboard.Closed += (_, _) => _fightsDashboard = null;
+            }
             _fightsDashboard.Show();
             _fightsDashboard.Activate();
         }
 
         private void InstancesMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            _instancesDashboard ??= new InstancesDashboardWindow();
+            if (_instancesDashboard == null)
+            {
+                _instancesDashboard = new InstancesDashboardWindow();
+                _instancesDashboard.Closed += (_, _) => _instancesDashboard = null;
+            }
             _instancesDashboard.Show();
             _instancesDashboard.Activate();
         }
