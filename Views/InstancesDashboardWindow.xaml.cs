@@ -64,7 +64,7 @@ namespace BrokenHelper
                 totalDuration += StatsService.GetInstanceDuration(inst.Id);
             }
 
-            var vm = new PodsumowanieViewModel
+            var vm = new SummaryViewModel
             {
                 InstanceCount = selected.Count,
                 FightCount = summary.FightCount,
@@ -77,7 +77,7 @@ namespace BrokenHelper
             };
             vm.LoadData(details);
 
-            var window = new Views.PanelPodsumowania
+            var window = new Views.SummaryPanel
             {
                 DataContext = vm,
                 Owner = this

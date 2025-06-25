@@ -2,9 +2,9 @@ using System.Windows;
 
 namespace BrokenHelper.Views
 {
-    public partial class PanelPodsumowania : Window
+    public partial class SummaryPanel : Window
     {
-        public PanelPodsumowania()
+        public SummaryPanel()
         {
             InitializeComponent();
         }
