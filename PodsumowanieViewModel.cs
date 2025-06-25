@@ -12,6 +12,7 @@ namespace BrokenHelper
         public int TotalPsycho { get; set; }
         public int TotalDropValue { get; set; }
         public int TotalProfit { get; set; }
+        public string TotalInstanceTime { get; set; } = string.Empty;
 
         public List<string> EquipmentList { get; private set; } = new();
         public List<string> ArtifactList { get; private set; } = new();
