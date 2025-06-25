@@ -9,17 +9,17 @@ namespace BrokenHelper
     {
         private readonly TableLayoutPanel _fightPanel;
         private readonly TableLayoutPanel _instancePanel;
-        private readonly Label _fightExpValue;
-        private readonly Label _fightPsychoValue;
-        private readonly Label _fightGoldValue;
-        private readonly Label _fightDropValue;
-        private readonly Label _instanceNameValue;
-        private readonly Label _instanceExpValue;
-        private readonly Label _instancePsychoValue;
-        private readonly Label _instanceGoldValue;
-        private readonly Label _instanceDropValue;
-        private readonly Label _instanceDurationValue;
-        private static readonly Font RowFont = new Font("Consolas", 10, FontStyle.Bold);
+        private Label _fightExpValue;
+        private Label _fightPsychoValue;
+        private Label _fightGoldValue;
+        private Label _fightDropValue;
+        private Label _instanceNameValue;
+        private Label _instanceExpValue;
+        private Label _instancePsychoValue;
+        private Label _instanceGoldValue;
+        private Label _instanceDropValue;
+        private Label _instanceDurationValue;
+        private static readonly Font RowFont = new("Consolas", 10, FontStyle.Bold);
         private readonly Timer _timer;
         private readonly string _playerName;
 
