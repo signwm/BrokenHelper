@@ -33,12 +33,9 @@ namespace BrokenHelper
         {
             int price = drop.DropType switch
             {
-                DropType.Item => itemPrices.TryGetValue(drop.Name, out var v)
-                    ? v : 0,
-                DropType.Drif =>
-                    (drop.Code != null && artifactPrices.TryGetValue(drop.Code, out var av))
-                        ? av
-                        : (artifactPrices.TryGetValue(drop.Name, out var an) ? an : 0),
+                DropType.Item => itemPrices.TryGetValue(drop.Name, out var v) ? v : 0,
+                DropType.Drif or DropType.Orb =>
+                    artifactPrices.TryGetValue(drop.Name, out var an) ? an : 0,
                 DropType.Equipment => drop.Value ?? 0,
                 _ => 0
             };
@@ -51,7 +48,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var instances = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
@@ -100,7 +97,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var fightsQuery = context.Fights
                 .Include(f => f.Instance)
@@ -181,7 +178,7 @@ namespace BrokenHelper
                 .ToList();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var result = new List<FightInfo>();
             foreach (var fight in instance)
@@ -240,7 +237,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var players = context.FightPlayers
                 .Include(fp => fp.Drops)
@@ -270,7 +267,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var drops = context.FightPlayers
                 .Include(fp => fp.Drops)
@@ -335,7 +332,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var instancesQuery = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
@@ -382,7 +379,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var instance = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
