@@ -7,7 +7,7 @@ namespace BrokenHelper
 {
     public class InstancesDashboard : Form
     {
-        private readonly DataGridView _grid = new();
+        private readonly BufferedDataGridView _grid = new();
         private readonly DateTimePicker _fromPicker = new() { Format = DateTimePickerFormat.Short };
         private readonly DateTimePicker _toPicker = new() { Format = DateTimePickerFormat.Short };
         private readonly Button _dayBefore = new() { Text = "<" };

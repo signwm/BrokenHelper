@@ -7,7 +7,7 @@ namespace BrokenHelper
 {
     public class FightsDashboard : Form
     {
-        private readonly DataGridView _grid = new();
+        private readonly BufferedDataGridView _grid = new();
         private readonly CheckBox _withoutInstance = new() { Text = "Tylko bez instancji" };
         private readonly DateTimePicker _fromPicker = new() { Format = DateTimePickerFormat.Short };
         private readonly DateTimePicker _toPicker = new() { Format = DateTimePickerFormat.Short };
