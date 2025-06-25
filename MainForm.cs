@@ -47,6 +47,8 @@ namespace BrokenHelper
                 _hud?.Close();
                 _hud = null;
             }
+        }
+        
         private void fightsMenuItem_Click(object sender, EventArgs e)
         {
             _fightsDashboard ??= new FightsDashboard();
