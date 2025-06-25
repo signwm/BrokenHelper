@@ -19,7 +19,7 @@ namespace BrokenHelper
         private Label _instanceGoldValue;
         private Label _instanceDropValue;
         private Label _instanceDurationValue;
-        private static readonly Font RowFont = new("Consolas", 10, FontStyle.Bold);
+        private static readonly Font RowFont = new("Consolas", 8, FontStyle.Bold);
         private readonly Timer _timer;
         private readonly string _playerName;
 
@@ -77,7 +77,7 @@ namespace BrokenHelper
 
         private void AddFightRows()
         {
-            AddRow(_fightPanel, "Ostatnia walka:");
+            AddRow(_fightPanel, "Walka:");
             _fightExpValue = AddRow(_fightPanel, "EXP:");
             _fightPsychoValue = AddRow(_fightPanel, "Psycho:");
             _fightGoldValue = AddRow(_fightPanel, "Gold:");
@@ -102,10 +102,10 @@ namespace BrokenHelper
             ShowInTaskbar = false;
             TopMost = true;
             Width = 250;
-            Height = 200;
+            Height = 400;
             StartPosition = FormStartPosition.Manual;
             var screen = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
-            Location = new Point(screen.Right - Width - 20, (screen.Bottom + Height) / 2);
+            Location = new Point(screen.Right - Width - 20, (screen.Bottom - Height) / 2);
 
             BackColor = Color.Magenta;
             TransparencyKey = Color.Magenta;
