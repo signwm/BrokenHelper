@@ -7,12 +7,92 @@ namespace BrokenHelper
 {
     public class HudForm : Form
     {
-        private readonly Panel _fightPanel;
-        private readonly Panel _instancePanel;
-        private readonly Label _fightLabel;
-        private readonly Label _instanceLabel;
+        private readonly TableLayoutPanel _fightPanel;
+        private readonly TableLayoutPanel _instancePanel;
+        private readonly Label _fightExpValue;
+        private readonly Label _fightPsychoValue;
+        private readonly Label _fightGoldValue;
+        private readonly Label _fightDropValue;
+        private readonly Label _instanceNameValue;
+        private readonly Label _instanceExpValue;
+        private readonly Label _instancePsychoValue;
+        private readonly Label _instanceGoldValue;
+        private readonly Label _instanceDropValue;
+        private readonly Label _instanceDurationValue;
+        private static readonly Font RowFont = new Font("Consolas", 10, FontStyle.Bold);
         private readonly Timer _timer;
         private readonly string _playerName;
+
+        private static TableLayoutPanel CreateHudTable()
+        {
+            var table = new TableLayoutPanel
+            {
+                ColumnCount = 2,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
+                Padding = new Padding(10)
+            };
+
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            return table;
+        }
+
+        private Label AddRow(TableLayoutPanel table, string labelText)
+        {
+            var font = RowFont;
+            var labelColor = Color.LightGray;
+            var valueColor = Color.White;
+
+            var label = new Label
+            {
+                Text = labelText,
+                Font = font,
+                ForeColor = labelColor,
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(0, 2, 0, 2)
+            };
+
+            var value = new Label
+            {
+                Text = string.Empty,
+                Font = font,
+                ForeColor = valueColor,
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleRight,
+                Padding = new Padding(0, 2, 0, 2)
+            };
+
+            table.RowCount++;
+            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            table.Controls.Add(label);
+            table.Controls.Add(value);
+
+            return value;
+        }
+
+        private void AddFightRows()
+        {
+            AddRow(_fightPanel, "Ostatnia walka:");
+            _fightExpValue = AddRow(_fightPanel, "EXP:");
+            _fightPsychoValue = AddRow(_fightPanel, "Psycho:");
+            _fightGoldValue = AddRow(_fightPanel, "Gold:");
+            _fightDropValue = AddRow(_fightPanel, "Przedmioty:");
+        }
+
+        private void AddInstanceRows()
+        {
+            _instanceNameValue = AddRow(_instancePanel, "Instancja:");
+            _instanceExpValue = AddRow(_instancePanel, "EXP:");
+            _instancePsychoValue = AddRow(_instancePanel, "Psycho:");
+            _instanceGoldValue = AddRow(_instancePanel, "Gold:");
+            _instanceDropValue = AddRow(_instancePanel, "Przedmioty:");
+            _instanceDurationValue = AddRow(_instancePanel, "Czas:");
+        }
 
         public HudForm(string playerName)
         {
@@ -22,55 +102,32 @@ namespace BrokenHelper
             ShowInTaskbar = false;
             TopMost = true;
             Width = 250;
-            Height = 170;
+            Height = 200;
             StartPosition = FormStartPosition.Manual;
             var screen = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
             Location = new Point(screen.Right - Width - 20, (screen.Bottom + Height) / 2);
 
-            BackColor = Color.Black;
-            TransparencyKey = Color.Black;
+            BackColor = Color.Magenta;
+            TransparencyKey = Color.Magenta;
 
-            var panel = new Panel
+            var container = new FlowLayoutPanel
             {
-                BackColor = Color.FromArgb(120, 30, 30, 30),
+                BackColor = Color.FromArgb(160, 30, 30, 30),
                 Dock = DockStyle.Fill,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = FlowDirection.TopDown,
                 Padding = new Padding(5)
             };
-            Controls.Add(panel);
+            Controls.Add(container);
 
-            _instancePanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink
-            };
-            panel.Controls.Add(_instancePanel);
+            _fightPanel = CreateHudTable();
+            _instancePanel = CreateHudTable();
+            container.Controls.Add(_fightPanel);
+            container.Controls.Add(_instancePanel);
 
-            _fightPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink
-            };
-            panel.Controls.Add(_fightPanel);
-
-            _fightLabel = new Label
-            {
-                ForeColor = Color.White,
-                AutoSize = true,
-                Dock = DockStyle.Right,
-                TextAlign = ContentAlignment.TopRight
-            };
-            _fightPanel.Controls.Add(_fightLabel);
-
-            _instanceLabel = new Label
-            {
-                ForeColor = Color.White,
-                AutoSize = true,
-                Dock = DockStyle.Right,
-                TextAlign = ContentAlignment.TopRight
-            };
-            _instancePanel.Controls.Add(_instanceLabel);
+            AddFightRows();
+            AddInstanceRows();
 
             _timer = new Timer { Interval = 1000 };
             _timer.Tick += (s, e) => UpdateData();
@@ -96,30 +153,56 @@ namespace BrokenHelper
             var player = string.IsNullOrWhiteSpace(_playerName) ? StatsService.GetDefaultPlayerName() : _playerName;
             if (string.IsNullOrWhiteSpace(player))
             {
-                _fightLabel.Text = "";
-                _instanceLabel.Text = "";
+                ClearFight();
+                ClearInstance();
                 return;
             }
 
             var fight = StatsService.GetLastFightSummary(player);
             if (fight == null)
             {
-                _fightLabel.Text = "Brak danych o walce";
+                ClearFight();
             }
             else
             {
-                _fightLabel.Text = $"Ostatnia walka:\nEXP: {fight.EarnedExp}\nPsycho: {fight.EarnedPsycho}\nGold: {fight.FoundGold}\nPrzedmioty: {fight.DropValue}";
+                _fightExpValue.Text = fight.EarnedExp.ToString();
+                _fightPsychoValue.Text = fight.EarnedPsycho.ToString();
+                _fightGoldValue.Text = fight.FoundGold.ToString();
+                _fightDropValue.Text = fight.DropValue.ToString();
             }
 
             var instance = StatsService.GetCurrentOrLastInstance(player);
             if (instance == null)
             {
-                _instanceLabel.Text = "Brak instancji";
+                ClearInstance();
             }
             else
             {
-                _instanceLabel.Text = $"Instancja: {instance.Name}\nEXP: {instance.EarnedExp}\nPsycho: {instance.EarnedPsycho}\nGold: {instance.FoundGold}\nPrzedmioty: {instance.DropValue}\nCzas: {instance.Duration}";
+                _instanceNameValue.Text = instance.Name;
+                _instanceExpValue.Text = instance.EarnedExp.ToString();
+                _instancePsychoValue.Text = instance.EarnedPsycho.ToString();
+                _instanceGoldValue.Text = instance.FoundGold.ToString();
+                _instanceDropValue.Text = instance.DropValue.ToString();
+                _instanceDurationValue.Text = instance.Duration;
             }
+        }
+
+        private void ClearFight()
+        {
+            _fightExpValue.Text = "-";
+            _fightPsychoValue.Text = "-";
+            _fightGoldValue.Text = "-";
+            _fightDropValue.Text = "-";
+        }
+
+        private void ClearInstance()
+        {
+            _instanceNameValue.Text = "Brak";
+            _instanceExpValue.Text = "-";
+            _instancePsychoValue.Text = "-";
+            _instanceGoldValue.Text = "-";
+            _instanceDropValue.Text = "-";
+            _instanceDurationValue.Text = "-";
         }
     }
 }
