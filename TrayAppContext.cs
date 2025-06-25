@@ -38,6 +38,18 @@ namespace BrokenHelper
                 ContextMenuStrip = menu,
                 Visible = true
             };
+
+            // Automatically start listening on launch
+            _listener = new PacketListener();
+            _listener.Start();
+            _startStopMenuItem.Text = "Zatrzymaj nasłuchiwanie";
+
+            // Automatically show the HUD on launch
+            var player = StatsService.GetDefaultPlayerName();
+            _hudForm = new HudForm(player);
+            _hudForm.FormClosed += (_, _) => { _hudMenuItem.Text = "Włącz HUD"; _hudForm = null; };
+            _hudForm.Show();
+            _hudMenuItem.Text = "Wyłącz HUD";
         }
 
         private void StartStopMenuItem_Click(object? sender, EventArgs e)
