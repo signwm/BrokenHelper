@@ -24,7 +24,7 @@ namespace BrokenHelper
             grid.ItemsSource = null;
             var from = fromPicker.SelectedDate ?? DateTime.Today;
             var to = (toPicker.SelectedDate ?? DateTime.Today).AddDays(1);
-            var data = StatsService.GetInstances(GetPlayerName(), from, to, false);
+            var data = StatsService.GetInstances(GetPlayerName(), from, to);
             grid.ItemsSource = data;
         }
 
