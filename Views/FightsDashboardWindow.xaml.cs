@@ -65,6 +65,7 @@ namespace BrokenHelper
                 TotalGold = summary.FoundGold,
                 TotalExp = summary.EarnedExp,
                 TotalPsycho = summary.EarnedPsycho,
+                TotalDropValue = summary.DropValue,
                 TotalProfit = summary.FoundGold + summary.DropValue
             };
             vm.LoadData(details);

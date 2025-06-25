@@ -10,6 +10,7 @@ namespace BrokenHelper
         public int TotalGold { get; set; }
         public int TotalExp { get; set; }
         public int TotalPsycho { get; set; }
+        public int TotalDropValue { get; set; }
         public int TotalProfit { get; set; }
 
         public List<string> EquipmentList { get; private set; } = new();
