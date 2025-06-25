@@ -40,6 +40,19 @@ namespace BrokenHelper
             "Wendigo", "Władca Marionetek"
         });
 
+        private static readonly int[,] QuoteItemCoefficients = new int[,]
+        {
+            { 4, 4, 4, 20, 20, 20, 67, 67, 67, 351, 351, 351 },
+            { 7, 7, 7, 27, 27, 27, 90, 90, 90, 585, 585, 585 },
+            { 10, 10, 10, 54, 54, 54, 180, 180, 180, 1170, 1170, 1170 },
+            { 16, 16, 16, 81, 81, 81, 270, 270, 270, 1755, 1755, 1755 },
+            { 27, 27, 27, 135, 135, 135, 450, 450, 450, 2925, 2925, 2925 },
+            { 40, 40, 40, 202, 202, 202, 675, 675, 675, 4680, 4680, 4680 },
+            { 67, 67, 67, 337, 337, 337, 1125, 1125, 1125, 7605, 7605, 7605 },
+            { 135, 135, 135, 675, 675, 675, 2250, 2250, 2250, 14625, 14625, 14625 },
+            { 337, 337, 337, 1687, 1687, 1687, 5850, 5850, 5850, 35100, 35100, 35100 }
+        };
+
         private int? _currentInstanceId;
         private HashSet<string>[] _currentGroupProgress = BossGroups.Select(g => new HashSet<string>()).ToArray();
         private readonly Dictionary<string, int> _currentMultiKillCounts = new();
@@ -416,14 +429,35 @@ namespace BrokenHelper
                 if (special)
                 {
                     var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
-                    if (name.Contains("Smoków"))
+                    var essencePrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Esencja")?.Value ?? 0;
+
+                    if (name.Contains('"'))
+                    {
+                        if (ornamentField.HasValue && quality.HasValue &&
+                            ornamentField.Value >= 0 && ornamentField.Value < QuoteItemCoefficients.GetLength(0) &&
+                            quality.Value >= 1 && quality.Value <= QuoteItemCoefficients.GetLength(1))
+                        {
+                            int coef = QuoteItemCoefficients[ornamentField.Value, quality.Value - 1];
+                            var basePrice = quality.Value >= 7 ? shardPrice : essencePrice;
+                            valueField = coef * basePrice;
+                        }
+                    }
+                    else if (name.Contains("Smoków"))
+                    {
                         valueField = 12 * shardPrice;
+                    }
                     else if (name.Contains("Vorlingów") || name.Contains("Lodu"))
+                    {
                         valueField = 30 * shardPrice;
+                    }
                     else if (name.Contains("Władców"))
+                    {
                         valueField = 150 * shardPrice;
+                    }
                     else if (name.Contains("Dawnych Orków"))
+                    {
                         valueField = 60 * shardPrice;
+                    }
                 }
 
                 var drop = new Models.DropEntity
