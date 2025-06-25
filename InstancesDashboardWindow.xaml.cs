@@ -56,5 +56,19 @@ namespace BrokenHelper
             var drops = string.Join("\n", summary.Drops.Select(d => $"{d.Name}: {d.Quantity} (wartość {d.Value})"));
             MessageBox.Show($"Instancji: {selected.Count}\nWalki: {summary.FightCount}\nExp: {summary.EarnedExp}\nPsycho: {summary.EarnedPsycho}\nGold: {summary.FoundGold}\nDrop: {summary.DropValue}\n\n{drops}", "Podsumowanie");
         }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = grid.SelectedItems.Cast<InstanceInfo>().ToList();
+            if (selected.Count == 0)
+                return;
+
+            var result = MessageBox.Show($"Czy na pewno chcesz usunąć {selected.Count} instancji?", "Potwierdź", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            StatsService.DeleteInstances(selected.Select(i => i.Id));
+            RefreshData();
+        }
     }
 }

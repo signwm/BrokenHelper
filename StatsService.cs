@@ -403,5 +403,47 @@ namespace BrokenHelper
 
             context.SaveChanges();
         }
+
+        public static void DeleteFights(IEnumerable<int> fightIds)
+        {
+            using var context = new GameDbContext();
+
+            var fights = context.Fights
+                .Include(f => f.Players).ThenInclude(fp => fp.Drops)
+                .Include(f => f.Opponents)
+                .Where(f => fightIds.Contains(f.Id))
+                .ToList();
+
+            foreach (var fight in fights)
+            {
+                context.Drops.RemoveRange(fight.Players.SelectMany(p => p.Drops));
+                context.FightPlayers.RemoveRange(fight.Players);
+                context.FightOpponents.RemoveRange(fight.Opponents);
+                context.Fights.Remove(fight);
+            }
+
+            context.SaveChanges();
+        }
+
+        public static void DeleteInstances(IEnumerable<int> instanceIds)
+        {
+            using var context = new GameDbContext();
+
+            var instances = context.Instances
+                .Include(i => i.Fights)
+                .Where(i => instanceIds.Contains(i.Id))
+                .ToList();
+
+            foreach (var instance in instances)
+            {
+                foreach (var fight in instance.Fights)
+                {
+                    fight.InstanceId = null;
+                }
+                context.Instances.Remove(instance);
+            }
+
+            context.SaveChanges();
+        }
     }
 }
