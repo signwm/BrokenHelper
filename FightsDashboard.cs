@@ -9,7 +9,8 @@ namespace BrokenHelper
     {
         private readonly DataGridView _grid = new();
         private readonly CheckBox _withoutInstance = new() { Text = "Tylko bez instancji" };
-        private readonly DateTimePicker _datePicker = new() { Format = DateTimePickerFormat.Short };
+        private readonly DateTimePicker _fromPicker = new() { Format = DateTimePickerFormat.Short };
+        private readonly DateTimePicker _toPicker = new() { Format = DateTimePickerFormat.Short };
         private readonly Button _dayBefore = new() { Text = "<" };
         private readonly Button _dayAfter = new() { Text = ">" };
         private readonly Button _today = new() { Text = "Dziś" };
@@ -43,7 +44,8 @@ namespace BrokenHelper
             top.Dock = DockStyle.Top;
             top.AutoSize = true;
             top.Controls.Add(_dayBefore);
-            top.Controls.Add(_datePicker);
+            top.Controls.Add(_fromPicker);
+            top.Controls.Add(_toPicker);
             top.Controls.Add(_dayAfter);
             top.Controls.Add(_today);
             top.Controls.Add(_withoutInstance);
@@ -53,9 +55,26 @@ namespace BrokenHelper
             Controls.Add(top);
 
             Load += (_, _) => RefreshData();
-            _dayBefore.Click += (_, _) => { _datePicker.Value = _datePicker.Value.AddDays(-1); RefreshData(); };
-            _dayAfter.Click += (_, _) => { _datePicker.Value = _datePicker.Value.AddDays(1); RefreshData(); };
-            _today.Click += (_, _) => { _datePicker.Value = DateTime.Today; RefreshData(); };
+            _dayBefore.Click += (_, _) =>
+            {
+                _fromPicker.Value = _fromPicker.Value.AddDays(-1);
+                _toPicker.Value = _toPicker.Value.AddDays(-1);
+                RefreshData();
+            };
+            _dayAfter.Click += (_, _) =>
+            {
+                _fromPicker.Value = _fromPicker.Value.AddDays(1);
+                _toPicker.Value = _toPicker.Value.AddDays(1);
+                RefreshData();
+            };
+            _today.Click += (_, _) =>
+            {
+                _fromPicker.Value = DateTime.Today;
+                _toPicker.Value = DateTime.Today;
+                RefreshData();
+            };
+            _fromPicker.ValueChanged += (_, _) => RefreshData();
+            _toPicker.ValueChanged += (_, _) => RefreshData();
             _withoutInstance.CheckedChanged += (_, _) => RefreshData();
             _summary.Click += (_, _) => ShowSummary();
             _grid.CellContentClick += Grid_CellContentClick;
@@ -70,14 +89,15 @@ namespace BrokenHelper
         private void RefreshData()
         {
             _grid.Rows.Clear();
-            var from = _datePicker.Value.Date;
-            var to = from.AddDays(1);
+            var from = _fromPicker.Value.Date;
+            var to = _toPicker.Value.Date.AddDays(1);
             var fights = StatsService.GetFights(GetPlayerName(), from, to, _withoutInstance.Checked);
             foreach (var f in fights)
             {
                 int row = _grid.Rows.Add(false, f.Time, string.Join(", ", f.Players), string.Join(", ", f.Opponents), f.EarnedExp, f.EarnedPsycho, f.FoundGold, f.DropValue, f.Drops);
                 _grid.Rows[row].Tag = f.Id;
             }
+            AdjustWidth();
         }
 
         private void Grid_CellContentClick(object? sender, DataGridViewCellEventArgs e)
@@ -113,6 +133,14 @@ namespace BrokenHelper
             var summary = StatsService.SummarizeFights(GetPlayerName(), ids);
             var drops = string.Join("\n", summary.Drops.Select(d => $"{d.Name}: {d.Quantity} (wartość {d.Value})"));
             MessageBox.Show($"Walk: {summary.FightCount}\nExp: {summary.EarnedExp}\nPsycho: {summary.EarnedPsycho}\nGold: {summary.FoundGold}\nDrop: {summary.DropValue}\n\n{drops}", "Podsumowanie");
+        }
+
+        private void AdjustWidth()
+        {
+            _grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+            int width = _grid.RowHeadersWidth + _grid.Columns.Cast<DataGridViewColumn>().Sum(c => c.Width);
+            width += SystemInformation.VerticalScrollBarWidth;
+            Width = width + (Width - ClientSize.Width);
         }
     }
 }
