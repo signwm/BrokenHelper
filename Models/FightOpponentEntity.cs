@@ -5,10 +5,10 @@ namespace BrokenHelper.Models
         public int Id { get; set; }
 
         public int FightId { get; set; }
-        public FightEntity Fight { get; set; }
+        public FightEntity Fight { get; set; } = null!;
 
         public int OpponentTypeId { get; set; }
-        public OpponentTypeEntity OpponentType { get; set; }
+        public OpponentTypeEntity OpponentType { get; set; } = null!;
 
         public int Quantity { get; set; }
     }

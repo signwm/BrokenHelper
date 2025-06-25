@@ -74,7 +74,8 @@ namespace BrokenHelper
         {
             if (_hudForm == null || _hudForm.IsDisposed)
             {
-                _hudForm = new HudForm();
+                var player = StatsService.GetDefaultPlayerName();
+                _hudForm = new HudForm(player);
                 _hudForm.FormClosed += (_, _) => { _hudMenuItem.Text = "Włącz HUD"; _hudForm = null; };
                 _hudForm.Show();
                 _hudMenuItem.Text = "Wyłącz HUD";

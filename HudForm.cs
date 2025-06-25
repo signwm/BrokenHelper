@@ -22,7 +22,7 @@ namespace BrokenHelper
             Width = 250;
             Height = 170;
             StartPosition = FormStartPosition.Manual;
-            var screen = Screen.PrimaryScreen.WorkingArea;
+            var screen = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
             Location = new Point(screen.Right - Width - 20, screen.Top + 300);
 
             BackColor = Color.Fuchsia;

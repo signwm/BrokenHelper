@@ -122,7 +122,7 @@ namespace BrokenHelper
             {
                 if ((bool)(row.Cells[0].Value ?? false))
                 {
-                    ids.Add((int)row.Tag);
+                    ids.Add((int)row.Tag!);
                 }
             }
             if (ids.Count == 0) return;
