@@ -6,5 +6,8 @@
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
         </Style>
+        <Style TargetType="{x:Type DataGridTextColumn}">
+            <Setter Property="ElementStyle" Value="{StaticResource DataGridCellTextStyle}" />
+        </Style>
     </Application.Resources>
 </Application>

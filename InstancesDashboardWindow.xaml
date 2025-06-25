@@ -13,15 +13,15 @@
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding StartTime}" Header="Start" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding Name}" Header="Nazwa" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding Difficulty}" Header="Poziom" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding Duration}" Header="Czas" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding EarnedExp}" Header="Exp" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding EarnedPsycho}" Header="Psycho" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding FoundGold}" Header="Gold" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding DropValue}" Header="Drop" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding FightCount}" Header="Walki" ElementStyle="{StaticResource DataGridCellTextStyle}" />
+                <DataGridTextColumn Binding="{Binding StartTime}" Header="Start" />
+                <DataGridTextColumn Binding="{Binding Name}" Header="Nazwa" />
+                <DataGridTextColumn Binding="{Binding Difficulty}" Header="Poziom" />
+                <DataGridTextColumn Binding="{Binding Duration}" Header="Czas" />
+                <DataGridTextColumn Binding="{Binding EarnedExp}" Header="Exp" />
+                <DataGridTextColumn Binding="{Binding EarnedPsycho}" Header="Psycho" />
+                <DataGridTextColumn Binding="{Binding FoundGold}" Header="Gold" />
+                <DataGridTextColumn Binding="{Binding DropValue}" Header="Drop" />
+                <DataGridTextColumn Binding="{Binding FightCount}" Header="Walki" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

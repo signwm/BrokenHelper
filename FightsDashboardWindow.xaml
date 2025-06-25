@@ -15,14 +15,14 @@
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Time}" Header="Czas" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding PlayersText}" Header="Gracze" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding OpponentsText}" Header="Przeciwnicy" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding EarnedExp}" Header="Exp" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding EarnedPsycho}" Header="Psycho" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding FoundGold}" Header="Gold" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding DropValue}" Header="Drop" ElementStyle="{StaticResource DataGridCellTextStyle}" />
-                <DataGridTextColumn Binding="{Binding Drops}" Header="Przedmioty" ElementStyle="{StaticResource DataGridCellTextStyle}" />
+                <DataGridTextColumn Binding="{Binding Time}" Header="Czas" />
+                <DataGridTextColumn Binding="{Binding PlayersText}" Header="Gracze" />
+                <DataGridTextColumn Binding="{Binding OpponentsText}" Header="Przeciwnicy" />
+                <DataGridTextColumn Binding="{Binding EarnedExp}" Header="Exp" />
+                <DataGridTextColumn Binding="{Binding EarnedPsycho}" Header="Psycho" />
+                <DataGridTextColumn Binding="{Binding FoundGold}" Header="Gold" />
+                <DataGridTextColumn Binding="{Binding DropValue}" Header="Drop" />
+                <DataGridTextColumn Binding="{Binding Drops}" Header="Przedmioty" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
