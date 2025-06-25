@@ -18,7 +18,7 @@ namespace BrokenHelper
                 context.Database.EnsureCreated();
             }
 
-            Application.Run(new MainForm());
+            Application.Run(new TrayAppContext());
         }
     }
 }
