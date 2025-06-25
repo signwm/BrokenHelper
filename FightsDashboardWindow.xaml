@@ -12,6 +12,7 @@
             <CheckBox x:Name="withoutInstance" Content="Tylko bez instancji" Margin="5,0" Checked="FilterChanged" Unchecked="FilterChanged"/>
             <Button x:Name="summary" Content="Podsumuj" Margin="5,0" Click="Summary_Click"/>
             <Button x:Name="createInstance" Content="Stwórz instancję" Margin="5,0" Click="CreateInstance_Click"/>
+            <Button x:Name="delete" Content="Usuń" Margin="5,0" Click="Delete_Click"/>
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>

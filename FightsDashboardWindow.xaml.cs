@@ -83,5 +83,19 @@ namespace BrokenHelper
                 RefreshData();
             }
         }
+
+        private void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            var selected = grid.SelectedItems.Cast<FightInfo>().ToList();
+            if (selected.Count == 0)
+                return;
+
+            var result = MessageBox.Show($"Czy na pewno chcesz usunąć {selected.Count} walk?", "Potwierdź", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            StatsService.DeleteFights(selected.Select(f => f.Id));
+            RefreshData();
+        }
     }
 }

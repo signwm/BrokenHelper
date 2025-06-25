@@ -10,6 +10,7 @@
             <Button x:Name="dayAfter" Content="&gt;" Width="25" Click="DayAfter_Click"/>
             <Button x:Name="today" Content="Dziś" Margin="5,0" Click="Today_Click"/>
             <Button x:Name="summary" Content="Podsumuj" Margin="5,0" Click="Summary_Click"/>
+            <Button x:Name="delete" Content="Usuń" Margin="5,0" Click="Delete_Click"/>
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>
