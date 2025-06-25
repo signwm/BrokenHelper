@@ -7,5 +7,6 @@ namespace BrokenHelper
         public int Quantity { get; set; }
         public int UnitPrice { get; set; }
         public int TotalValue => Quantity * UnitPrice;
+        public int TotalPrice => TotalValue;
     }
 }

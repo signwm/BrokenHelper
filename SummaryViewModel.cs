@@ -14,9 +14,9 @@ namespace BrokenHelper
         public int TotalProfit { get; set; }
         public string TotalInstanceTime { get; set; } = string.Empty;
 
-        public List<string> FormattedEquipmentList { get; private set; } = new();
-        public List<string> FormattedArtifactList { get; private set; } = new();
-        public List<string> FormattedItemList { get; private set; } = new();
+        public List<DropSummaryDetailed> EquipmentList { get; private set; } = new();
+        public List<DropSummaryDetailed> ArtifactList { get; private set; } = new();
+        public List<DropSummaryDetailed> ItemList { get; private set; } = new();
 
         public int EquipmentSum { get; private set; }
         public int ArtifactSum { get; private set; }
@@ -29,26 +29,25 @@ namespace BrokenHelper
         public void LoadData(List<DropSummaryDetailed> drops)
         {
             SetListAndSum(drops.Where(d => d.Type == "Equipment"), out var eqList, out var eqSum);
-            FormattedEquipmentList = eqList;
+            EquipmentList = eqList;
             EquipmentSum = eqSum;
 
             SetListAndSum(drops.Where(d => d.Type == "Artifact"), out var artList, out var artSum);
-            FormattedArtifactList = artList;
+            ArtifactList = artList;
             ArtifactSum = artSum;
 
             SetListAndSum(drops.Where(d => d.Type == "Item"), out var itemList, out var itemSum);
-            FormattedItemList = itemList;
+            ItemList = itemList;
             ItemSum = itemSum;
         }
 
-        private static void SetListAndSum(IEnumerable<DropSummaryDetailed> source, out List<string> result, out int sum)
+        private static void SetListAndSum(IEnumerable<DropSummaryDetailed> source, out List<DropSummaryDetailed> result, out int sum)
         {
             var sorted = source
                 .OrderByDescending(d => d.TotalValue)
-                .Select(d => $"{d.Name,-28} {d.Quantity} x {d.UnitPrice:N0} = {d.TotalValue:N0}".Replace(',', ' '))
                 .ToList();
             result = sorted;
-            sum = source.Sum(d => d.TotalValue);
+            sum = sorted.Sum(d => d.TotalValue);
         }
     }
 }
