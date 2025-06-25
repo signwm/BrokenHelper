@@ -283,6 +283,7 @@ namespace BrokenHelper
                 : (DateTime.Now - instance.StartTime).ToString(@"mm\:ss");
 
             return new InstanceInfo(
+                instance.Id,
                 instance.StartTime,
                 instance.Name,
                 instance.Difficulty,
