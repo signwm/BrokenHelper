@@ -4,7 +4,6 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <RootNamespace>BrokenHelper</RootNamespace>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -16,5 +15,6 @@
     <PackageReference Include="SharpPcap" Version="6.3.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="PacketDotNet" Version="1.4.8" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.6" />
   </ItemGroup>
 </Project>
