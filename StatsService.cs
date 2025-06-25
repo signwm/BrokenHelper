@@ -12,7 +12,11 @@ namespace BrokenHelper
 
     public record FightInfo(int Id, DateTime Time, List<string> Players,
         List<string> Opponents, int EarnedExp, int EarnedPsycho,
-        int FoundGold, int DropValue, string Drops);
+        int FoundGold, int DropValue, string Drops)
+    {
+        public string PlayersText => string.Join(", ", Players);
+        public string OpponentsText => string.Join(", ", Opponents);
+    }
 
     public record DropSummary(string Name, int Quantity, int Value);
 

@@ -16,8 +16,8 @@
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Width="30"/>
                 <DataGridTextColumn Binding="{Binding Time}" Header="Czas" />
-                <DataGridTextColumn Binding="{Binding Players}" Header="Gracze" />
-                <DataGridTextColumn Binding="{Binding Opponents}" Header="Przeciwnicy" />
+                <DataGridTextColumn Binding="{Binding PlayersText}" Header="Gracze" />
+                <DataGridTextColumn Binding="{Binding OpponentsText}" Header="Przeciwnicy" />
                 <DataGridTextColumn Binding="{Binding EarnedExp}" Header="Exp" />
                 <DataGridTextColumn Binding="{Binding EarnedPsycho}" Header="Psycho" />
                 <DataGridTextColumn Binding="{Binding FoundGold}" Header="Gold" />

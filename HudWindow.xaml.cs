@@ -32,6 +32,8 @@ namespace BrokenHelper
 
             var fightPanel = CreateHudTable();
             var instancePanel = CreateHudTable();
+            fightPanel.Margin = new Thickness(10, 0, 10, 5);
+            instancePanel.Margin = new Thickness(10, 5, 10, 0);
             container.Children.Add(fightPanel);
             container.Children.Add(instancePanel);
 
