@@ -11,10 +11,10 @@
             <Button x:Name="today" Content="Dziś" Margin="5,0" Click="Today_Click"/>
             <CheckBox x:Name="withoutInstance" Content="Tylko bez instancji" Margin="5,0" Checked="FilterChanged" Unchecked="FilterChanged"/>
             <Button x:Name="summary" Content="Podsumuj" Margin="5,0" Click="Summary_Click"/>
+            <Button x:Name="createInstance" Content="Stwórz instancję" Margin="5,0" Click="CreateInstance_Click"/>
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Width="30"/>
                 <DataGridTextColumn Binding="{Binding Time}" Header="Czas" />
                 <DataGridTextColumn Binding="{Binding PlayersText}" Header="Gracze" />
                 <DataGridTextColumn Binding="{Binding OpponentsText}" Header="Przeciwnicy" />

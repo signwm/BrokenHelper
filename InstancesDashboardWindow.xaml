@@ -13,7 +13,6 @@
         </StackPanel>
         <DataGrid x:Name="grid" AutoGenerateColumns="False" DockPanel.Dock="Top">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Width="30"/>
                 <DataGridTextColumn Binding="{Binding StartTime}" Header="Start" />
                 <DataGridTextColumn Binding="{Binding Name}" Header="Nazwa" />
                 <DataGridTextColumn Binding="{Binding Difficulty}" Header="Poziom" />
