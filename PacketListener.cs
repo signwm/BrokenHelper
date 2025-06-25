@@ -195,9 +195,16 @@ namespace BrokenHelper
             using var context = new Models.GameDbContext();
 
             var fightTime = DateTime.Now;
+
+            var activeInstance = context.Instances
+                .FirstOrDefault(i => i.EndTime == null && i.StartTime <= fightTime);
+            if (activeInstance != null)
+                _currentInstanceId = activeInstance.Id;
+
             var fight = new Models.FightEntity
             {
-                EndTime = fightTime
+                EndTime = fightTime,
+                InstanceId = activeInstance?.Id
             };
 
             context.Fights.Add(fight);
