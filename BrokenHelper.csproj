@@ -4,6 +4,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <RootNamespace>BrokenHelper</RootNamespace>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
