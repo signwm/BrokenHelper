@@ -7,6 +7,8 @@ namespace BrokenHelper
 {
     public class HudForm : Form
     {
+        private readonly Panel _fightPanel;
+        private readonly Panel _instancePanel;
         private readonly Label _fightLabel;
         private readonly Label _instanceLabel;
         private readonly Timer _timer;
@@ -36,20 +38,39 @@ namespace BrokenHelper
             };
             Controls.Add(panel);
 
+            _instancePanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+            panel.Controls.Add(_instancePanel);
+
+            _fightPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+            panel.Controls.Add(_fightPanel);
+
             _fightLabel = new Label
             {
                 ForeColor = Color.White,
-                AutoSize = true
+                AutoSize = true,
+                Dock = DockStyle.Right,
+                TextAlign = ContentAlignment.TopRight
             };
-            panel.Controls.Add(_fightLabel);
+            _fightPanel.Controls.Add(_fightLabel);
 
             _instanceLabel = new Label
             {
                 ForeColor = Color.White,
                 AutoSize = true,
-                Top = _fightLabel.Bottom + 10
+                Dock = DockStyle.Right,
+                TextAlign = ContentAlignment.TopRight
             };
-            panel.Controls.Add(_instanceLabel);
+            _instancePanel.Controls.Add(_instanceLabel);
 
             _timer = new Timer { Interval = 1000 };
             _timer.Tick += (s, e) => UpdateData();
