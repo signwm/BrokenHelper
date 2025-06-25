@@ -265,6 +265,52 @@ namespace BrokenHelper
             return new FightsSummary(exp, psycho, gold, dropValue, fightCount, dropsGrouped);
         }
 
+        public static List<DropSummaryDetailed> GetDropDetails(string playerName, IEnumerable<int> fightIds)
+        {
+            using var context = new GameDbContext();
+
+            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+
+            var drops = context.FightPlayers
+                .Include(fp => fp.Drops)
+                .Where(fp => fightIds.Contains(fp.FightId) && fp.Player.Name == playerName)
+                .SelectMany(fp => fp.Drops)
+                .ToList();
+
+            var result = drops
+                .Select(d =>
+                {
+                    int unitPrice = d.Quantity == 0 ? 0 : GetDropValue(d, itemPrices, artifactPrices) / d.Quantity;
+                    string type = d.DropType switch
+                    {
+                        DropType.Equipment => "Equipment",
+                        DropType.Item => "Item",
+                        DropType.Drif or DropType.Orb => "Artifact",
+                        _ => "Item"
+                    };
+
+                    return new DropSummaryDetailed
+                    {
+                        Name = d.Name,
+                        Type = type,
+                        Quantity = d.Quantity,
+                        UnitPrice = unitPrice
+                    };
+                })
+                .GroupBy(d => new { d.Name, d.Type, d.UnitPrice })
+                .Select(g => new DropSummaryDetailed
+                {
+                    Name = g.Key.Name,
+                    Type = g.Key.Type,
+                    UnitPrice = g.Key.UnitPrice,
+                    Quantity = g.Sum(x => x.Quantity)
+                })
+                .ToList();
+
+            return result;
+        }
+
         public static string GetDefaultPlayerName()
         {
             return "Sign";
