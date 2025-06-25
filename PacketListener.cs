@@ -310,8 +310,8 @@ namespace BrokenHelper
 
             ParseItems(parts.ElementAtOrDefault(9), fightPlayer, context);
             ParseDrifs(parts.ElementAtOrDefault(25), fightPlayer, context);
-            ParseEquipment(parts.ElementAtOrDefault(7), fightPlayer, context);
-            ParseEquipment(parts.ElementAtOrDefault(27), fightPlayer, context);
+            ParseEquipment(parts.ElementAtOrDefault(7), fightPlayer, context, 0.3, true);
+            ParseEquipment(parts.ElementAtOrDefault(27), fightPlayer, context, 0.025, false);
 
             context.SaveChanges();
         }
@@ -377,7 +377,11 @@ namespace BrokenHelper
             }
         }
 
-        private static void ParseEquipment(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
+        private static void ParseEquipment(string? value,
+            Models.FightPlayerEntity fightPlayer,
+            Models.GameDbContext context,
+            double multiplier,
+            bool special)
         {
             foreach (var part in SplitEntries(value))
             {
@@ -401,12 +405,25 @@ namespace BrokenHelper
                     var thirdParts = third.Split(',');
                     if (thirdParts.Length >= 4 && int.TryParse(thirdParts[3], out var val))
                     {
-                        valueField = val;
+                        valueField = (int)Math.Round(val * multiplier);
                     }
                     if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
                     {
                         ornamentField = orn;
                     }
+                }
+
+                if (special)
+                {
+                    var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
+                    if (name.Contains("Smoków"))
+                        valueField = 12 * shardPrice;
+                    else if (name.Contains("Vorlingów") || name.Contains("Lodu"))
+                        valueField = 30 * shardPrice;
+                    else if (name.Contains("Władców"))
+                        valueField = 150 * shardPrice;
+                    else if (name.Contains("Dawnych Orków"))
+                        valueField = 60 * shardPrice;
                 }
 
                 var drop = new Models.DropEntity
