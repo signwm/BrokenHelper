@@ -15,7 +15,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
             context.Database.EnsureCreated();
 
-            StatsService.RecalculateDropPrices();
+            //StatsService.RecalculateDropPrices();
 
             _tray = new TrayIcon();
         }
