@@ -293,5 +293,49 @@ namespace BrokenHelper
                 dropsValue,
                 fights.Count);
         }
+
+        public static InstanceInfo? GetLastFinishedInstance(string playerName)
+        {
+            using var context = new GameDbContext();
+
+            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
+            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Code, p => p.Value);
+
+            var instance = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
+                .Where(i => i.EndTime != null)
+                .OrderByDescending(i => i.EndTime)
+                .FirstOrDefault();
+
+            if (instance == null)
+                return null;
+
+            var fights = instance.Fights;
+            var playerFights = fights.SelectMany(f => f.Players)
+                .Where(fp => fp.Player.Name == playerName)
+                .ToList();
+            if (playerFights.Count == 0)
+                return null;
+
+            int exp = playerFights.Sum(fp => fp.Exp);
+            int psycho = playerFights.Sum(fp => fp.Psycho);
+            int gold = playerFights.Sum(fp => fp.Gold);
+            int dropsValue = playerFights.SelectMany(fp => fp.Drops)
+                .Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+
+            string duration = (instance.EndTime!.Value - instance.StartTime).ToString(@"mm\:ss");
+
+            return new InstanceInfo(
+                instance.Id,
+                instance.StartTime,
+                instance.Name,
+                instance.Difficulty,
+                duration,
+                exp,
+                psycho,
+                gold,
+                dropsValue,
+                fights.Count);
+        }
     }
 }
