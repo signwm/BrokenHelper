@@ -254,12 +254,20 @@ namespace BrokenHelper
                 sb.AppendLine();
             }
 
-            block.ToolTip = new TextBlock
+            var text = new TextBlock
             {
                 Text = sb.ToString().TrimEnd(),
                 FontFamily = new FontFamily("Consolas"),
                 Background = Brushes.Black,
                 Foreground = Brushes.White
+            };
+
+            block.ToolTip = new ToolTip
+            {
+                BorderThickness = new Thickness(0),
+                Background = Brushes.Black,
+                Foreground = Brushes.White,
+                Content = text
             };
         }
 
