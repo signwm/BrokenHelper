@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrokenHelper;
 
 namespace BrokenHelper.PacketHandlers
 {
     internal class InstanceHandler
     {
         private int? _currentInstanceId;
-        private HashSet<string>[] _currentGroupProgress = Preferences.BossGroups.Select(g => new HashSet<string>()).ToArray();
+        private HashSet<string>[] _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
         private readonly Dictionary<string, int> _currentMultiKillCounts = new();
 
         public int? CurrentInstanceId => _currentInstanceId;
@@ -58,7 +57,7 @@ namespace BrokenHelper.PacketHandlers
             context.SaveChanges();
 
             _currentInstanceId = instance.Id;
-            _currentGroupProgress = Preferences.BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
             _currentMultiKillCounts.Clear();
         }
 
@@ -69,7 +68,7 @@ namespace BrokenHelper.PacketHandlers
 
             foreach (var name in opponentNames)
             {
-                if (Preferences.MultiKillBosses.TryGetValue(name, out var required))
+                if (PacketListener.MultiKillBosses.TryGetValue(name, out var required))
                 {
                     _currentMultiKillCounts.TryGetValue(name, out var count);
                     count++;
@@ -82,12 +81,12 @@ namespace BrokenHelper.PacketHandlers
                 }
 
                 bool grouped = false;
-                for (int i = 0; i < Preferences.BossGroups.Length; i++)
+                for (int i = 0; i < PacketListener.BossGroups.Length; i++)
                 {
-                    if (Preferences.BossGroups[i].Contains(name))
+                    if (PacketListener.BossGroups[i].Contains(name))
                     {
                         _currentGroupProgress[i].Add(name);
-                        if (_currentGroupProgress[i].Count == Preferences.BossGroups[i].Length)
+                        if (_currentGroupProgress[i].Count == PacketListener.BossGroups[i].Length)
                         {
                             CloseCurrentInstance(fightTime, context);
                         }
@@ -96,7 +95,7 @@ namespace BrokenHelper.PacketHandlers
                     }
                 }
 
-                if (!grouped && Preferences.SingleBosses.Contains(name))
+                if (!grouped && PacketListener.SingleBosses.Contains(name))
                 {
                     CloseCurrentInstance(fightTime, context);
                 }
@@ -117,7 +116,7 @@ namespace BrokenHelper.PacketHandlers
 
             _currentInstanceId = null;
             _currentMultiKillCounts.Clear();
-            _currentGroupProgress = Preferences.BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
         }
     }
 }
