@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrokenHelper;
 
 namespace BrokenHelper.PacketHandlers
 {
@@ -269,10 +270,10 @@ namespace BrokenHelper.PacketHandlers
                     if (name.Contains('"'))
                     {
                         if (ornamentField.HasValue && quality.HasValue &&
-                            ornamentField.Value >= 0 && ornamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
-                            quality.Value >= 7 && quality.Value <= PacketListener.QuoteItemCoefficients.GetLength(1))
+                            ornamentField.Value >= 0 && ornamentField.Value < Preferences.QuoteItemCoefficients.GetLength(0) &&
+                            quality.Value >= 7 && quality.Value <= Preferences.QuoteItemCoefficients.GetLength(1))
                         {
-                            int coef = PacketListener.QuoteItemCoefficients[ornamentField.Value, quality.Value - 1];
+                            int coef = Preferences.QuoteItemCoefficients[ornamentField.Value, quality.Value - 1];
                             var basePrice = quality.Value >= 7 ? shardPrice : essencePrice;
                             valueField = coef * basePrice;
                         }
