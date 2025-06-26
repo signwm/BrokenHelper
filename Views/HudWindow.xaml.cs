@@ -32,8 +32,18 @@ namespace BrokenHelper
         {
             _playerName = playerName;
             InitializeComponent();
-            Left = SystemParameters.WorkArea.Right - Width - 20;
-            Top = (SystemParameters.WorkArea.Height - Height) / 2;
+            var left = Preferences.GetInt("hud_left");
+            var top = Preferences.GetInt("hud_top");
+            if (left.HasValue && top.HasValue)
+            {
+                Left = left.Value;
+                Top = top.Value;
+            }
+            else
+            {
+                Left = SystemParameters.WorkArea.Right - Width - 20;
+                Top = (SystemParameters.WorkArea.Height - Height) / 2;
+            }
 
             // context menu
             var menu = new ContextMenu();
@@ -257,6 +267,9 @@ namespace BrokenHelper
 
         protected override void OnClosed(EventArgs e)
         {
+            Preferences.SetInt("hud_left", (int)Left);
+            Preferences.SetInt("hud_top", (int)Top);
+            Preferences.Save();
             _timer.Stop();
             _listener?.Stop();
             _fightsWindow?.Close();

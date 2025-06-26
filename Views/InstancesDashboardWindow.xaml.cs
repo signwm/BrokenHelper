@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Windows;
-using BrokenHelper.Models;
 
 namespace BrokenHelper
 {
@@ -13,10 +12,9 @@ namespace BrokenHelper
             Loaded += (_, _) => RefreshData();
         }
 
-        private string GetPlayerName()
+        private static string GetPlayerName()
         {
-            using var ctx = new GameDbContext();
-            return ctx.Players.FirstOrDefault()?.Name ?? string.Empty;
+            return StatsService.GetDefaultPlayerName();
         }
 
         private void RefreshData()
