@@ -8,7 +8,9 @@ namespace BrokenHelper
         private static readonly InstanceHandler _instanceHandler = new();
         private static readonly FightHandler _fightHandler = new(_instanceHandler);
 
-        public static void Process(string prefix, string rest)
+        public static void Process(string prefix, string rest) => Process(prefix, rest, DateTime.Now);
+
+        public static void Process(string prefix, string rest, DateTime time)
         {
             using (var context = new Models.GameDbContext())
             {
@@ -19,11 +21,11 @@ namespace BrokenHelper
 
             if (prefix == "1;118;")
             {
-                SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest), prefix);
+                SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest, time), prefix);
             }
             else if (prefix == "3;19;")
             {
-                SafeHandle(() => _fightHandler.HandleFightMessage(rest), prefix);
+                SafeHandle(() => _fightHandler.HandleFightMessage(rest, time), prefix);
             }
             else if (prefix == "36;0;")
             {

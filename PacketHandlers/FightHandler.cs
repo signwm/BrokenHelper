@@ -13,11 +13,11 @@ namespace BrokenHelper.PacketHandlers
             _instanceHandler = instanceHandler;
         }
 
-        public void HandleFightMessage(string message)
+        public void HandleFightMessage(string message, DateTime? time = null)
         {
             using var context = new Models.GameDbContext();
 
-            var fightTime = DateTime.Now;
+            var fightTime = time ?? DateTime.Now;
 
             var activeInstance = context.Instances
                 .FirstOrDefault(i => i.EndTime == null && i.StartTime <= fightTime);
