@@ -17,8 +17,7 @@
                  SelectionChanged="prefixList_SelectionChanged" />
         <RichTextBox x:Name="logBox" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"
                      IsReadOnly="True" VerticalScrollBarVisibility="Auto"
-                     HorizontalScrollBarVisibility="Hidden"
-                     TextWrapping="NoWrap" />
+                     HorizontalScrollBarVisibility="Hidden" />
 
         <CheckBox x:Name="autoScroll" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"
                   IsChecked="True" Content="Auto scroll" HorizontalAlignment="Right"/>
