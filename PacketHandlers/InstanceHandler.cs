@@ -112,6 +112,8 @@ namespace BrokenHelper.PacketHandlers
             {
                 instance.EndTime = time;
                 context.SaveChanges();
+                if (Preferences.SoundSignals)
+                    Helpers.SoundHelper.PlayInstanceEnded();
             }
 
             _currentInstanceId = null;
