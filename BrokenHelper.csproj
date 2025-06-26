@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Resources\start_round.wav" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Resources\instance_ended.wav" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Resources\bh_act.wav" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Resources\bh_victory.wav" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
