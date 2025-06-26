@@ -180,7 +180,7 @@ namespace BrokenHelper
             }
             catch (Exception ex)
             {
-                // ignore or log elsewhere
+                Console.WriteLine($"Error handling packet {prefix}: {ex.Message}");
             }
         }
     }
