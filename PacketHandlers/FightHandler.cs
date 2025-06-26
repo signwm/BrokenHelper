@@ -224,6 +224,9 @@ namespace BrokenHelper.PacketHandlers
                 var valueSegments = afterThird.Split('$');
                 int? valueField = null;
                 int? ornamentField = null;
+                string? orbCode = null;
+                string? orbName = null;
+                int? orbPrice = null;
                 if (valueSegments.Length >= 3)
                 {
                     var third = valueSegments[2];
@@ -235,6 +238,22 @@ namespace BrokenHelper.PacketHandlers
                     if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
                     {
                         ornamentField = orn;
+                    }
+
+                    if (valueSegments.Length >= 17)
+                    {
+                        var orbSegment = valueSegments[16];
+                        var orbParts = orbSegment.Split(',');
+                        if (orbParts.Length >= 7)
+                        {
+                            orbCode = $"{orbParts[0]}_{orbParts[5]}_{orbParts[6]}";
+                            var artifact = context.ArtifactPrices.FirstOrDefault(a => a.Code == orbCode);
+                            if (artifact != null)
+                            {
+                                orbName = artifact.Name;
+                                orbPrice = artifact.Value;
+                            }
+                        }
                     }
                 }
 
@@ -282,6 +301,20 @@ namespace BrokenHelper.PacketHandlers
                     OrnamentCount = ornamentField
                 };
                 context.Drops.Add(drop);
+
+                if (!string.IsNullOrEmpty(orbCode))
+                {
+                    var orbDrop = new Models.DropEntity
+                    {
+                        FightPlayer = fightPlayer,
+                        DropType = Models.DropType.Orb,
+                        Code = orbCode,
+                        Name = orbName ?? string.Empty,
+                        Value = orbPrice,
+                        Quantity = 1
+                    };
+                    context.Drops.Add(orbDrop);
+                }
             }
         }
     }
