@@ -51,13 +51,17 @@ namespace BrokenHelper
         private void EnsurePrefix(string prefix)
         {
             if (!_prefixes.Contains(prefix))
+            {
                 _prefixes.Add(prefix);
+                prefixList.SelectedItems.Add(prefix);
+            }
         }
 
         private void AppendEntry(LogEntry entry)
         {
             var p = new Paragraph { Margin = new Thickness(0) };
             p.Inlines.Add(new Run(entry.Time.ToString("HH:mm:ss.fff") + " ") { Foreground = Brushes.Gray });
+            p.Inlines.Add(new Run(entry.Prefix + " ") { Foreground = Brushes.Gray });
             p.Inlines.Add(new Run(entry.Message));
             logBox.Document.Blocks.Add(p);
             if (autoScroll.IsChecked == true)
