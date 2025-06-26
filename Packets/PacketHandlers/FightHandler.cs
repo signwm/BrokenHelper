@@ -91,7 +91,11 @@ namespace BrokenHelper.PacketHandlers
 
                 if (fields[0] == "1")
                 {
-                    HandleFightPlayer(fields, fight, context);
+                    var name = fields.ElementAtOrDefault(1) ?? string.Empty;
+                    if (string.Equals(name, Preferences.PlayerName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        HandleFightPlayer(fields, fight, context);
+                    }
                 }
                 else if (fields[0] == "2")
                 {
@@ -204,29 +208,15 @@ namespace BrokenHelper.PacketHandlers
             var gold = int.TryParse(parts.ElementAtOrDefault(4), out var g) ? g : 0;
             var psycho = int.TryParse(parts.ElementAtOrDefault(24), out var p) ? p : 0;
 
-            var player = context.Players.FirstOrDefault(pl => pl.Name == name);
-            if (player == null)
-            {
-                player = new Models.PlayerEntity { Name = name };
-                context.Players.Add(player);
-                context.SaveChanges();
-            }
+            fight.PlayerName = name;
+            fight.Exp = exp;
+            fight.Gold = gold;
+            fight.Psycho = psycho;
 
-            var fightPlayer = new Models.FightPlayerEntity
-            {
-                Fight = fight,
-                Player = player,
-                Exp = exp,
-                Gold = gold,
-                Psycho = psycho
-            };
-
-            context.FightPlayers.Add(fightPlayer);
-
-            ParseItems(parts.ElementAtOrDefault(9), fightPlayer, context);
-            ParseDrifs(parts.ElementAtOrDefault(25), fightPlayer, context);
-            ParseEquipment(parts.ElementAtOrDefault(7), fightPlayer, context, 0.3, true);
-            ParseEquipment(parts.ElementAtOrDefault(27), fightPlayer, context, 0.025, false);
+            ParseItems(parts.ElementAtOrDefault(9), fight, context);
+            ParseDrifs(parts.ElementAtOrDefault(25), fight, context);
+            ParseEquipment(parts.ElementAtOrDefault(7), fight, context, 0.3, true);
+            ParseEquipment(parts.ElementAtOrDefault(27), fight, context, 0.025, false);
 
             context.SaveChanges();
         }
@@ -249,14 +239,14 @@ namespace BrokenHelper.PacketHandlers
             return result.ToArray();
         }
 
-        private static void ParseDrifs(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
+        private static void ParseDrifs(string? value, Models.FightEntity fight, Models.GameDbContext context)
         {
             foreach (var part in SplitEntries(value))
             {
                 var name = part.Split("[-]")[0];
                 var drop = new Models.DropEntity
                 {
-                    FightPlayer = fightPlayer,
+                    Fight = fight,
                     DropType = Models.DropType.Drif,
                     Name = name
                 };
@@ -264,7 +254,7 @@ namespace BrokenHelper.PacketHandlers
             }
         }
 
-        private static void ParseItems(string? value, Models.FightPlayerEntity fightPlayer, Models.GameDbContext context)
+        private static void ParseItems(string? value, Models.FightEntity fight, Models.GameDbContext context)
         {
             foreach (var part in SplitEntries(value))
             {
@@ -283,7 +273,7 @@ namespace BrokenHelper.PacketHandlers
 
                 var drop = new Models.DropEntity
                 {
-                    FightPlayer = fightPlayer,
+                    Fight = fight,
                     DropType = Models.DropType.Item,
                     Name = name,
                     Quantity = qty
@@ -293,7 +283,7 @@ namespace BrokenHelper.PacketHandlers
         }
 
         private static void ParseEquipment(string? value,
-            Models.FightPlayerEntity fightPlayer,
+            Models.FightEntity fight,
             Models.GameDbContext context,
             double multiplier,
             bool special)
@@ -383,7 +373,7 @@ namespace BrokenHelper.PacketHandlers
 
                 var drop = new Models.DropEntity
                 {
-                    FightPlayer = fightPlayer,
+                    Fight = fight,
                     DropType = Models.DropType.Equipment,
                     Name = name,
                     Rank = quality,
@@ -396,7 +386,7 @@ namespace BrokenHelper.PacketHandlers
                 {
                     var orbDrop = new Models.DropEntity
                     {
-                        FightPlayer = fightPlayer,
+                        Fight = fight,
                         DropType = Models.DropType.Orb,
                         Code = orbCode,
                         Name = orbName ?? string.Empty,
