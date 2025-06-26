@@ -28,6 +28,5 @@ namespace BrokenHelper.Helpers
 
         public static void PlayAct() => PlaySound("bh_act.wav");
 
-        public static void PlayVictory() => PlaySound("bh_victory.wav");
     }
 }
