@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace BrokenHelper
@@ -22,9 +23,14 @@ namespace BrokenHelper
         public int ArtifactSum { get; private set; }
         public int ItemSum { get; private set; }
 
-        public string EquipmentSumFormatted => EquipmentSum.ToString("N0").Replace(',', ' ');
-        public string ArtifactSumFormatted => ArtifactSum.ToString("N0").Replace(',', ' ');
-        public string ItemSumFormatted => ItemSum.ToString("N0").Replace(',', ' ');
+        private static readonly NumberFormatInfo _nfi = new NumberFormatInfo
+        {
+            NumberGroupSeparator = " "
+        };
+
+        public string EquipmentSumFormatted => EquipmentSum.ToString("N0", _nfi);
+        public string ArtifactSumFormatted => ArtifactSum.ToString("N0", _nfi);
+        public string ItemSumFormatted => ItemSum.ToString("N0", _nfi);
 
         public void LoadData(List<DropSummaryDetailed> drops)
         {

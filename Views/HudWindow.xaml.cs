@@ -163,9 +163,14 @@ namespace BrokenHelper
             _instanceDurationValue = AddRow(grid, "Czas:");
         }
 
+        private static readonly NumberFormatInfo _nfi = new NumberFormatInfo
+        {
+            NumberGroupSeparator = " "
+        };
+
         private static string FormatNumber(int value)
         {
-            return value.ToString("N0", CultureInfo.InvariantCulture).Replace(',', ' ');
+            return value.ToString("N0", _nfi);
         }
 
         private void UpdateData()
