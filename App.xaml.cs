@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using BrokenHelper.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BrokenHelper
 {
@@ -14,6 +15,7 @@ namespace BrokenHelper
             Directory.CreateDirectory("data");
             using var context = new GameDbContext();
             context.Database.EnsureCreated();
+            context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
 
 
             var player = StatsService.GetDefaultPlayerName();
