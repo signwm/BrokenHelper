@@ -140,6 +140,9 @@ namespace BrokenHelper
                 var rest = message.Substring(secondSemi + 1);
                 rest = rest.Replace("%20", " ");
 
+                var snippet = rest.Length > 60 ? rest.Substring(0, 60) : rest;
+                Console.WriteLine($"{DateTime.Now:O} {prefix} {snippet}");
+
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
                 var filePath = Path.Combine(_dataPath, fileName);
                 var line = $"{rest} {DateTime.Now:O}";
