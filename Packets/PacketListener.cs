@@ -146,9 +146,8 @@ namespace BrokenHelper
 
                 if (PacketProcessor.RelevantPrefixes.Contains(prefix))
                 {
-                    var filePath = Path.Combine(_dataPath, "packet_log.txt");
                     var line = $"{now:O} ||| {prefix} ||| {rest} ";
-                    File.AppendAllText(filePath, line + Environment.NewLine);
+                    File.AppendAllText(_logPath, line + Environment.NewLine);
                 }
                 else
                 {
