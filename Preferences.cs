@@ -81,6 +81,12 @@ namespace BrokenHelper
             }
             set => Set("playername", value);
         }
+
+        public static bool SoundSignals
+        {
+            get => Get("sound_signals") == "1";
+            set => Set("sound_signals", value ? "1" : "0");
+        }
     }
 }
 

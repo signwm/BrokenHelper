@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BrokenHelper.Helpers;
 using BrokenHelper.PacketHandlers;
 
 namespace BrokenHelper
@@ -147,6 +148,11 @@ namespace BrokenHelper
                 if (prefix == "1;118;")
                 {
                     SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest), prefix);
+                }
+                else if (prefix == "3;2;")
+                {
+                    if (Preferences.SoundSignals)
+                        SoundHelper.PlayBeep();
                 }
                 else if (prefix == "3;19;")
                 {

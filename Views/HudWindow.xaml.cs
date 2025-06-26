@@ -74,6 +74,19 @@ namespace BrokenHelper
             manual.Click += (_, _) => ShowManualPacketWindow();
             menu.Items.Add(manual);
 
+            var sounds = new MenuItem
+            {
+                Header = "Sygnały dźwiękowe",
+                IsCheckable = true,
+                IsChecked = Preferences.SoundSignals
+            };
+            sounds.Click += (_, _) =>
+            {
+                Preferences.SoundSignals = sounds.IsChecked;
+                Preferences.Save();
+            };
+            menu.Items.Add(sounds);
+
             menu.Items.Add(new Separator());
             var exit = new MenuItem { Header = "Zako\u0144cz" };
             exit.Click += (_, _) => Application.Current.Shutdown();
