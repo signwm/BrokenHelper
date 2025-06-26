@@ -19,17 +19,21 @@ namespace BrokenHelper.PacketHandlers
 
             var fightTime = time ?? DateTime.Now;
 
-            var activeInstance = context.Instances
-                .FirstOrDefault(i => i.EndTime == null && i.StartTime <= fightTime);
-            if (activeInstance != null)
+            var instance = context.Instances
+                .FirstOrDefault(i => i.StartTime <= fightTime &&
+                    (i.EndTime == null || fightTime <= i.EndTime));
+
+            if (instance != null && instance.EndTime == null)
+            {
                 typeof(InstanceHandler)
                     .GetField("_currentInstanceId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                    .SetValue(_instanceHandler, activeInstance.Id);
+                    .SetValue(_instanceHandler, instance.Id);
+            }
 
             var fight = new Models.FightEntity
             {
                 EndTime = fightTime,
-                InstanceId = activeInstance?.Id
+                InstanceId = instance?.Id
             };
 
             context.Fights.Add(fight);

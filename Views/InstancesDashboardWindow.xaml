@@ -19,6 +19,7 @@
             </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding StartTime}" Header="Start" />
+                <DataGridTextColumn Binding="{Binding EndTime}" Header="Koniec" />
                 <DataGridTextColumn Binding="{Binding Name}" Header="Nazwa" />
                 <DataGridTextColumn Binding="{Binding Difficulty}" Header="Poziom" />
                 <DataGridTextColumn Binding="{Binding Duration}" Header="Czas" />
