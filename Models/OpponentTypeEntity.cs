@@ -7,7 +7,6 @@ namespace BrokenHelper.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int Level { get; set; }
-        public bool IsBoss { get; set; }
 
         public List<FightOpponentEntity> Fights { get; set; } = [];
     }

@@ -20,6 +20,5 @@
 
   <ItemGroup>
     <None Include="Resources\bh_act.wav" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Resources\bh_victory.wav" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

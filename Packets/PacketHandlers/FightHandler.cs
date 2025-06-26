@@ -164,8 +164,7 @@ namespace BrokenHelper.PacketHandlers
                 type = new Models.OpponentTypeEntity
                 {
                     Name = name,
-                    Level = level,
-                    IsBoss = false
+                    Level = level
                 };
                 context.OpponentTypes.Add(type);
                 context.SaveChanges();
