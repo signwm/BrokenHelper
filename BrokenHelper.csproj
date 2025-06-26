@@ -18,8 +18,8 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.10" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="Resources\start_round.wav" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="Resources\instance_ended.wav" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-</Project>
+    <ItemGroup>
+      <None Include="Resources\bh_act.wav" CopyToOutputDirectory="PreserveNewest" />
+      <None Include="Resources\bh_victory.wav" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Project>
