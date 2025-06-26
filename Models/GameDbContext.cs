@@ -29,7 +29,14 @@ namespace BrokenHelper.Models
             {
                 Directory.CreateDirectory("data");
                 var dbPath = Path.Combine("data", "data.db");
-                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+                var builder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+                {
+                    DataSource = dbPath,
+                    Cache = Microsoft.Data.Sqlite.SqliteCacheMode.Shared,
+                    Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadWriteCreate,
+                    Pooling = false
+                };
+                optionsBuilder.UseSqlite(builder.ToString());
             }
         }
 
