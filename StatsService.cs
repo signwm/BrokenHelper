@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrokenHelper
 {
-    public record InstanceInfo(int Id, DateTime StartTime, string Name,
+    public record InstanceInfo(int Id, DateTime StartTime, DateTime? EndTime, string Name,
         int Difficulty, string Duration, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, int FightCount);
 
@@ -78,6 +78,7 @@ namespace BrokenHelper
                 result.Add(new InstanceInfo(
                     instance.Id,
                     instance.StartTime,
+                    instance.EndTime,
                     instance.Name,
                     instance.Difficulty,
                     duration,
@@ -397,6 +398,7 @@ namespace BrokenHelper
             return new InstanceInfo(
                 instance.Id,
                 instance.StartTime,
+                instance.EndTime,
                 instance.Name,
                 instance.Difficulty,
                 duration,
@@ -442,6 +444,7 @@ namespace BrokenHelper
             return new InstanceInfo(
                 instance.Id,
                 instance.StartTime,
+                instance.EndTime,
                 instance.Name,
                 instance.Difficulty,
                 duration,
