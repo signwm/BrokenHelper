@@ -11,6 +11,8 @@ namespace BrokenHelper
             InitializeComponent();
         }
 
+        public event EventHandler? ValueChanged;
+
         public DateTime Value
         {
             get
@@ -23,17 +25,18 @@ namespace BrokenHelper
             {
                 datePart.SelectedDate = value.Date;
                 timePart.Text = value.ToString("HH:mm:ss");
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         private void DatePart_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            // keep Value in sync if needed
+            ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void TimePart_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // keep Value in sync if needed
+            ValueChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

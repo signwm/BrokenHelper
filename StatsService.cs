@@ -10,7 +10,7 @@ namespace BrokenHelper
         int Difficulty, string Duration, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, int FightCount);
 
-    public record FightInfo(int Id, DateTime Time, List<string> Players,
+    public record FightInfo(int Id, DateTime StartTime, DateTime EndTime, List<string> Players,
         List<string> Opponents, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, string Drops, int? InstanceId,
         string InstanceName)
@@ -54,7 +54,7 @@ namespace BrokenHelper
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
                 .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Where(i => i.StartTime >= from && i.StartTime <= to)
-                .OrderBy(i => i.StartTime)
+                .OrderByDescending(i => i.StartTime)
                 .ToList();
 
             var result = new List<InstanceInfo>();
@@ -112,7 +112,9 @@ namespace BrokenHelper
                 fightsQuery = fightsQuery.Where(f => f.InstanceId == null);
             }
 
-            var fights = fightsQuery.OrderBy(f => f.EndTime).ToList();
+            var fights = fightsQuery
+                .OrderByDescending(f => f.EndTime ?? f.StartTime)
+                .ToList();
 
             var result = new List<FightInfo>();
             foreach (var fight in fights)
@@ -128,6 +130,7 @@ namespace BrokenHelper
                 {
                     result.Add(new FightInfo(
                         fight.Id,
+                        fight.StartTime,
                         fight.EndTime ?? fight.StartTime,
                         players,
                         opponents,
@@ -151,6 +154,7 @@ namespace BrokenHelper
 
                 result.Add(new FightInfo(
                     fight.Id,
+                    fight.StartTime,
                     fight.EndTime ?? fight.StartTime,
                     players,
                     opponents,
@@ -175,7 +179,7 @@ namespace BrokenHelper
                 .Include(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
                 .Where(f => f.InstanceId == instanceId)
-                .OrderBy(f => f.EndTime)
+                .OrderByDescending(f => f.EndTime ?? f.StartTime)
                 .ToList();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
@@ -195,6 +199,7 @@ namespace BrokenHelper
                 {
                     result.Add(new FightInfo(
                         fight.Id,
+                        fight.StartTime,
                         fight.EndTime ?? fight.StartTime,
                         players,
                         opponents,
@@ -218,6 +223,7 @@ namespace BrokenHelper
 
                 result.Add(new FightInfo(
                     fight.Id,
+                    fight.StartTime,
                     fight.EndTime ?? fight.StartTime,
                     players,
                     opponents,

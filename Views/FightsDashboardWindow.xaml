@@ -6,8 +6,8 @@
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
             <Button x:Name="dayBefore" Content="&lt;" Width="25" Click="DayBefore_Click"/>
-            <DatePicker x:Name="fromPicker" SelectedDateChanged="DateChanged"/>
-            <DatePicker x:Name="toPicker" SelectedDateChanged="DateChanged"/>
+            <local:DateTimePicker x:Name="fromPicker" ValueChanged="DateChanged"/>
+            <local:DateTimePicker x:Name="toPicker" ValueChanged="DateChanged"/>
             <Button x:Name="dayAfter" Content="&gt;" Width="25" Click="DayAfter_Click"/>
             <Button x:Name="today" Content="Dziś" Margin="5,0" Click="Today_Click"/>
             <CheckBox x:Name="withoutInstance" Content="Tylko bez instancji" Margin="5,0" Checked="FilterChanged" Unchecked="FilterChanged"/>
@@ -20,7 +20,8 @@
                 <local:ThousandsSeparatorConverter x:Key="Sep" />
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Time}" Header="Czas" />
+                <DataGridTextColumn Binding="{Binding StartTime}" Header="Start" />
+                <DataGridTextColumn Binding="{Binding EndTime}" Header="Koniec" />
                 <DataGridTextColumn Binding="{Binding InstanceName}" Header="Instancja" />
                 <DataGridTextColumn Binding="{Binding OpponentsText}" Header="Przeciwnicy" />
                 <DataGridTextColumn Binding="{Binding EarnedExp, Converter={StaticResource Sep}}" Header="Exp" />
