@@ -26,8 +26,8 @@ namespace BrokenHelper.Helpers
             }
         }
 
-        public static void PlayBeep() => PlaySound("start_round.wav");
+        public static void PlayAction() => PlaySound("bh_act.wav");
 
-        public static void PlayInstanceEnded() => PlaySound("instance_ended.wav");
+        public static void PlayVictory() => PlaySound("bh_victory.wav");
     }
 }
