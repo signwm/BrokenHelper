@@ -21,6 +21,7 @@ namespace BrokenHelper
             rest = rest.Replace("%20", " ");
             var snippet = rest.Length > 60 ? rest.Substring(0, 60) : rest;
             Console.WriteLine($"{time:O} {prefix} {snippet}");
+            Logger.Add(prefix, rest, time);
 
             if (prefix == "1;118;")
             {

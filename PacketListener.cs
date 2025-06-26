@@ -142,6 +142,7 @@ namespace BrokenHelper
 
                 var snippet = rest.Length > 60 ? rest.Substring(0, 60) : rest;
                 Console.WriteLine($"{DateTime.Now:O} {prefix} {snippet}");
+                Logger.Add(prefix, rest, DateTime.Now);
 
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
                 var filePath = Path.Combine(_dataPath, fileName);
