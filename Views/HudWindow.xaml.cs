@@ -327,7 +327,7 @@ namespace BrokenHelper
             var window = new ManualPacketWindow { Owner = this };
             if (window.ShowDialog() == true)
             {
-                ManualPacketProcessor.Process(window.Prefix, window.Message);
+                ManualPacketProcessor.Process(window.Prefix, window.Message, window.Time);
             }
         }
 

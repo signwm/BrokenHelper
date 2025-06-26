@@ -21,7 +21,7 @@ namespace BrokenHelper.PacketHandlers
             }
         }
 
-        public void HandleInstanceMessage(string message)
+        public void HandleInstanceMessage(string message, DateTime? time = null)
         {
             var parts = message.Split("[$]", StringSplitOptions.None);
             if (parts.Length <= 9)
@@ -36,7 +36,7 @@ namespace BrokenHelper.PacketHandlers
             if (context.Instances.Any(i => i.PublicId == publicId))
                 return;
 
-            var startTime = DateTime.Now;
+            var startTime = time ?? DateTime.Now;
 
             var openInstances = context.Instances.Where(i => i.EndTime == null).ToList();
             foreach (var inst in openInstances)

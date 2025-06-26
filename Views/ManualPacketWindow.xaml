@@ -5,6 +5,7 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -19,8 +20,10 @@
             <ComboBoxItem Content="36;0;" />
             <ComboBoxItem Content="50;0;" />
         </ComboBox>
-        <TextBox x:Name="messageBox" Grid.Row="1" Grid.ColumnSpan="2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,10,0,0">
+        <Label Content="Czas:" Grid.Row="1" Grid.Column="0" Margin="0,0,5,5" />
+        <DatePicker x:Name="timePicker" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" />
+        <TextBox x:Name="messageBox" Grid.Row="2" Grid.ColumnSpan="2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" />
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,10,0,0">
             <Button Content="Wyślij" Width="80" Margin="0,0,5,0" Click="Send_Click"/>
             <Button Content="Anuluj" Width="80" Click="Cancel_Click"/>
         </StackPanel>
