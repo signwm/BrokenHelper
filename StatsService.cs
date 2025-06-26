@@ -289,7 +289,7 @@ namespace BrokenHelper
 
                     return new DropSummaryDetailed
                     {
-                        Name = d.Name,
+                        Name = AppendOrnamentLabel(d.Name, d.OrnamentCount),
                         Type = type,
                         Quantity = d.Quantity,
                         UnitPrice = unitPrice
@@ -513,6 +513,31 @@ namespace BrokenHelper
             { 135, 135, 135, 675, 675, 675, 2250, 2250, 2250, 14625, 14625, 14625 },
             { 337, 337, 337, 1687, 1687, 1687, 5850, 5850, 5850, 35100, 35100, 35100 }
         };
+
+        private static readonly string[] OrnamentLabels =
+        {
+            "[B1]",
+            "[B2]",
+            "[B3]",
+            "[S1]",
+            "[S2]",
+            "[S3]",
+            "[G1]",
+            "[G2]",
+            "[G3]"
+        };
+
+        private static string AppendOrnamentLabel(string name, int? ornamentCount)
+        {
+            if (!name.Contains('"') || ornamentCount == null)
+                return name;
+
+            int count = ornamentCount.Value;
+            if (count < 0 || count >= OrnamentLabels.Length)
+                return name;
+
+            return $"{name} {OrnamentLabels[count]}";
+        }
 
         public static void RecalculateDropPrices()
         {
