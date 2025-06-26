@@ -64,6 +64,10 @@ namespace BrokenHelper
             fights.Click += (_, _) => ShowFights();
             menu.Items.Add(fights);
 
+            var manual = new MenuItem { Header = "Ręczne wprowadzanie pakietu" };
+            manual.Click += (_, _) => ShowManualPacketWindow();
+            menu.Items.Add(manual);
+
             menu.Items.Add(new Separator());
             var exit = new MenuItem { Header = "Zako\u0144cz" };
             exit.Click += (_, _) => Application.Current.Shutdown();
@@ -263,6 +267,15 @@ namespace BrokenHelper
             }
             _fightsWindow.Show();
             _fightsWindow.Activate();
+        }
+
+        private void ShowManualPacketWindow()
+        {
+            var window = new ManualPacketWindow { Owner = this };
+            if (window.ShowDialog() == true)
+            {
+                ManualPacketProcessor.Process(window.Prefix, window.Message);
+            }
         }
 
         protected override void OnClosed(EventArgs e)
