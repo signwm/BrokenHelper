@@ -6,7 +6,7 @@ namespace BrokenHelper
 {
     public partial class App : Application
     {
-        private TrayIcon? _tray;
+        private HudWindow? _hud;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -17,12 +17,14 @@ namespace BrokenHelper
 
             //StatsService.RecalculateDropPrices();
 
-            _tray = new TrayIcon();
+            var player = StatsService.GetDefaultPlayerName();
+            _hud = new HudWindow(player);
+            _hud.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            _tray?.Dispose();
+            _hud?.Close();
             base.OnExit(e);
         }
     }
