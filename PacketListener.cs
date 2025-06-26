@@ -157,9 +157,17 @@ namespace BrokenHelper
                     if (Preferences.SoundSignals)
                         SoundHelper.PlayBeep();
                 }
+                else if (prefix == "3;1;")
+                {
+                    SafeHandle(() => _fightHandler.HandleFightStart(), prefix);
+                }
                 else if (prefix == "3;19;")
                 {
-                    SafeHandle(() => _fightHandler.HandleFightMessage(rest), prefix);
+                    SafeHandle(() => _fightHandler.HandleFightSummary(rest), prefix);
+                }
+                else if (prefix == "6;43;")
+                {
+                    SafeHandle(() => _fightHandler.HandleFightEnd(), prefix);
                 }
                 else if (prefix == "36;0;")
                 {

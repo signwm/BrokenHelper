@@ -7,21 +7,22 @@ namespace BrokenHelper.PacketHandlers
     internal class FightHandler
     {
         private readonly InstanceHandler _instanceHandler;
+        private int? _currentFightId;
 
         public FightHandler(InstanceHandler instanceHandler)
         {
             _instanceHandler = instanceHandler;
         }
 
-        public void HandleFightMessage(string message, DateTime? time = null)
+        public void HandleFightStart(DateTime? time = null)
         {
             using var context = new Models.GameDbContext();
 
-            var fightTime = time ?? DateTime.Now;
+            var startTime = time ?? DateTime.Now;
 
             var instance = context.Instances
-                .FirstOrDefault(i => i.StartTime <= fightTime &&
-                    (i.EndTime == null || fightTime <= i.EndTime));
+                .FirstOrDefault(i => i.StartTime <= startTime &&
+                    (i.EndTime == null || startTime <= i.EndTime));
 
             if (instance != null && instance.EndTime == null)
             {
@@ -32,12 +33,30 @@ namespace BrokenHelper.PacketHandlers
 
             var fight = new Models.FightEntity
             {
-                EndTime = fightTime,
+                StartTime = startTime,
                 InstanceId = instance?.Id
             };
 
             context.Fights.Add(fight);
             context.SaveChanges();
+
+            _currentFightId = fight.Id;
+        }
+
+        public void HandleFightSummary(string message, DateTime? time = null)
+        {
+            if (_currentFightId == null)
+            {
+                HandleFightStart(time);
+            }
+
+            using var context = new Models.GameDbContext();
+
+            var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
+            if (fight == null)
+                return;
+
+            var fightTime = time ?? DateTime.Now;
 
             var entries = message.Split("[--]", StringSplitOptions.None);
             var opponentNames = new List<string>();
@@ -61,6 +80,28 @@ namespace BrokenHelper.PacketHandlers
 
             context.SaveChanges();
             _instanceHandler.CheckInstanceCompletion(opponentNames, fightTime, context);
+        }
+
+        public void HandleFightEnd(DateTime? time = null)
+        {
+            if (_currentFightId == null)
+                return;
+
+            using var context = new Models.GameDbContext();
+
+            var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
+            if (fight == null)
+            {
+                _currentFightId = null;
+                return;
+            }
+
+            fight.EndTime = time ?? DateTime.Now;
+            context.SaveChanges();
+
+            _instanceHandler.CloseIfPending(fight.EndTime, context);
+
+            _currentFightId = null;
         }
 
         private static void HandleFightOpponent(string[] parts, Models.FightEntity fight, Models.GameDbContext context)

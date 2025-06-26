@@ -6,6 +6,7 @@ namespace BrokenHelper.Models
     public class FightEntity
     {
         public int Id { get; set; }
+        public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
 
         public int? InstanceId { get; set; }
