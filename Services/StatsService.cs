@@ -100,7 +100,7 @@ namespace BrokenHelper
                 .Include(f => f.Instance)
                 .Include(f => f.Drops)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
-                .Where(f => f.PlayerName == playerName && f.EndTime != null && f.EndTime >= from && f.EndTime <= to);
+                .Where(f => f.PlayerName == playerName && f.StartTime >= from && f.EndTime <= to);
 
             if (onlyWithoutInstance)
             {
@@ -154,7 +154,7 @@ namespace BrokenHelper
                 .Include(f => f.Drops)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
                 .Where(f => f.InstanceId == instanceId && f.PlayerName == playerName)
-                .OrderByDescending(f => f.EndTime ?? f.StartTime)
+                .OrderByDescending(f => f.StartTime)
                 .ToList();
 
             var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
@@ -277,7 +277,7 @@ namespace BrokenHelper
 
             var lastFightId = context.Fights
                 .Where(f => f.PlayerName == playerName)
-                .OrderByDescending(f => f.EndTime)
+                .OrderByDescending(f => f.StartTime)
                 .Select(f => f.Id)
                 .FirstOrDefault();
 
