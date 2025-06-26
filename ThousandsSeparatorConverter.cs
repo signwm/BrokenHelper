@@ -12,7 +12,11 @@ namespace BrokenHelper
                 return null;
 
             if (value is IFormattable formattable)
-                return formattable.ToString("N0", CultureInfo.InvariantCulture);
+            {
+                var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+                nfi.NumberGroupSeparator = " ";
+                return formattable.ToString("N0", nfi);
+            }
 
             return value.ToString();
         }
