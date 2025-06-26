@@ -314,7 +314,7 @@ namespace BrokenHelper
 
             var lastFightId = context.Fights
                 .Where(f => f.PlayerName == playerName)
-                .OrderByDescending(f => f.EndTime)
+                .OrderByDescending(f => f.StartTime)
                 .Select(f => f.Id)
                 .FirstOrDefault();
 
