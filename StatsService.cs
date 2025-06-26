@@ -328,7 +328,7 @@ namespace BrokenHelper
 
             return lastFightId == 0
                 ? []
-                : GetDropDetails(playerName, new[] { lastFightId });
+                : GetDropDetails(playerName, [lastFightId]);
         }
 
         public static List<DropSummaryDetailed> GetCurrentOrLastInstanceDropDetails(string playerName)
@@ -364,7 +364,7 @@ namespace BrokenHelper
                 .Select(fp => fp.FightId)
                 .FirstOrDefault();
 
-            return lastFightId == 0 ? null : SummarizeFights(playerName, new[] { lastFightId });
+            return lastFightId == 0 ? null : SummarizeFights(playerName, [lastFightId]);
         }
 
         public static InstanceInfo? GetCurrentOrLastInstance(string playerName)

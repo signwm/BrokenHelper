@@ -14,7 +14,7 @@ namespace BrokenHelper
     {
         internal static readonly string[][] BossGroups =
         [
-            new[] { "Duch Ognia", "Duch Energii", "Duch Zimna" },
+            ["Duch Ognia", "Duch Energii", "Duch Zimna"],
             ["Babadek", "Gregorius", "Ghadira"],
             ["Mahet", "Tarul"],
             ["Lugus", "Morana"],
