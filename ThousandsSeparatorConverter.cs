@@ -12,7 +12,7 @@ namespace BrokenHelper
                 return null;
 
             if (value is IFormattable formattable)
-                return formattable.ToString("N0", CultureInfo.InvariantCulture).Replace(',', ' ');
+                return formattable.ToString("N0", CultureInfo.InvariantCulture);
 
             return value.ToString();
         }
