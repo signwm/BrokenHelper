@@ -534,19 +534,6 @@ namespace BrokenHelper
             return end - instance.StartTime;
         }
 
-        private static readonly int[,] QuoteItemCoefficients = new int[,]
-        {
-            { 4, 4, 4, 20, 20, 20, 67, 67, 67, 351, 351, 351 },
-            { 7, 7, 7, 27, 27, 27, 90, 90, 90, 585, 585, 585 },
-            { 10, 10, 10, 54, 54, 54, 180, 180, 180, 1170, 1170, 1170 },
-            { 16, 16, 16, 81, 81, 81, 270, 270, 270, 1755, 1755, 1755 },
-            { 27, 27, 27, 135, 135, 135, 450, 450, 450, 2925, 2925, 2925 },
-            { 40, 40, 40, 202, 202, 202, 675, 675, 675, 4680, 4680, 4680 },
-            { 67, 67, 67, 337, 337, 337, 1125, 1125, 1125, 7605, 7605, 7605 },
-            { 135, 135, 135, 675, 675, 675, 2250, 2250, 2250, 14625, 14625, 14625 },
-            { 337, 337, 337, 1687, 1687, 1687, 5850, 5850, 5850, 35100, 35100, 35100 }
-        };
-
         private static readonly string[] OrnamentLabels =
         {
             "[B1]",
@@ -570,74 +557,6 @@ namespace BrokenHelper
                 return name;
 
             return $"{name} {OrnamentLabels[count]}";
-        }
-
-        public static void RecalculateDropPrices()
-        {
-            using var context = new GameDbContext();
-
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
-            var shardPrice = itemPrices.TryGetValue("Odłamek", out var sp) ? sp : 0;
-            var essencePrice = itemPrices.TryGetValue("Esencja", out var ep) ? ep : 0;
-
-            var drops = context.Drops.ToList();
-            foreach (var drop in drops)
-            {
-                switch (drop.DropType)
-                {
-                    case DropType.Item:
-                        drop.Value = itemPrices.TryGetValue(drop.Name, out var iv) ? iv : 0;
-                        break;
-                    case DropType.Drif:
-                    case DropType.Orb:
-                        drop.Value = artifactPrices.TryGetValue(drop.Name, out var av) ? av : 0;
-                        break;
-                    case DropType.Equipment:
-                        drop.Value = CalculateEquipmentValue(drop, shardPrice, essencePrice);
-                        break;
-                }
-            }
-
-            context.SaveChanges();
-        }
-
-        private static int CalculateEquipmentValue(DropEntity drop, int shardPrice, int essencePrice)
-        {
-            double multiplier = drop.Name.Count(c => c == ' ') > 2 ? 0.025 : 0.3;
-            int baseValue = drop.Value ?? 0;
-            int result = (int)Math.Round(baseValue * multiplier);
-
-            if (drop.Name.Contains('"'))
-            {
-                if (drop.OrnamentCount.HasValue && drop.Rank.HasValue &&
-                    drop.OrnamentCount.Value >= 0 && drop.OrnamentCount.Value < QuoteItemCoefficients.GetLength(0) &&
-                    drop.Rank.Value >= 1 && drop.Rank.Value <= QuoteItemCoefficients.GetLength(1))
-                {
-                    int coef = QuoteItemCoefficients[drop.OrnamentCount.Value, drop.Rank.Value - 1];
-                    var basePrice = drop.Rank.Value >= 7 ? shardPrice : essencePrice;
-                    result = coef * basePrice;
-                }
-            }
-            else if (drop.Name.Contains("Smoków"))
-            {
-                result = 12 * shardPrice;
-            }
-            else if (drop.Name.Contains("Vorlingów") || drop.Name.Contains("Lodu"))
-            {
-                result = 30 * shardPrice;
-            }
-            else if (drop.Name.Contains("Władców"))
-            {
-                result = 150 * shardPrice;
-            }
-            else if (drop.Name.Contains("Dawnych Orków"))
-            {
-                result = 60 * shardPrice;
-            }
-
-            return result;
         }
     }
 }
