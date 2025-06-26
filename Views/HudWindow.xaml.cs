@@ -35,6 +35,20 @@ namespace BrokenHelper
         private List<DropSummaryDetailed> _fightDrops = new();
         private List<DropSummaryDetailed> _instanceDrops = new();
 
+        private void OnFightStarted()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ClearFight();
+                _fightDrops.Clear();
+            });
+        }
+
+        private void OnFightSummary()
+        {
+            Dispatcher.Invoke(UpdateData);
+        }
+
         public HudWindow(string playerName)
         {
             _playerName = playerName;
@@ -116,6 +130,9 @@ namespace BrokenHelper
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (_, _) => UpdateData();
             _timer.Start();
+
+            GameEvents.FightStarted += OnFightStarted;
+            GameEvents.FightSummary += OnFightSummary;
 
             UpdateData();
         }
@@ -371,6 +388,8 @@ namespace BrokenHelper
             _fightsWindow?.Close();
             _instancesWindow?.Close();
             _logsWindow?.Close();
+            GameEvents.FightStarted -= OnFightStarted;
+            GameEvents.FightSummary -= OnFightSummary;
             base.OnClosed(e);
         }
     }

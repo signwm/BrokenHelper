@@ -41,6 +41,8 @@ namespace BrokenHelper.PacketHandlers
             context.SaveChanges();
 
             _currentFightId = fight.Id;
+
+            GameEvents.OnFightStarted();
         }
 
         public void HandleFightSummary(string message, DateTime? time = null)
@@ -101,6 +103,8 @@ namespace BrokenHelper.PacketHandlers
 
             context.SaveChanges();
             _instanceHandler.CheckInstanceCompletion(opponentNames, fightTime, context);
+
+            GameEvents.OnFightSummary();
         }
 
         public void HandleFightEnd(DateTime? time = null)

@@ -105,7 +105,7 @@ namespace BrokenHelper
                 .Include(f => f.Players).ThenInclude(fp => fp.Player)
                 .Include(f => f.Players).ThenInclude(fp => fp.Drops)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
-                .Where(f => f.EndTime >= from && f.EndTime <= to);
+                .Where(f => f.EndTime != null && f.EndTime >= from && f.EndTime <= to);
 
             if (onlyWithoutInstance)
             {
@@ -128,7 +128,7 @@ namespace BrokenHelper
                 {
                     result.Add(new FightInfo(
                         fight.Id,
-                        fight.EndTime,
+                        fight.EndTime ?? fight.StartTime,
                         players,
                         opponents,
                         0,
@@ -151,7 +151,7 @@ namespace BrokenHelper
 
                 result.Add(new FightInfo(
                     fight.Id,
-                    fight.EndTime,
+                    fight.EndTime ?? fight.StartTime,
                     players,
                     opponents,
                     my.Exp,
@@ -195,7 +195,7 @@ namespace BrokenHelper
                 {
                     result.Add(new FightInfo(
                         fight.Id,
-                        fight.EndTime,
+                        fight.EndTime ?? fight.StartTime,
                         players,
                         opponents,
                         0,
@@ -218,7 +218,7 @@ namespace BrokenHelper
 
                 result.Add(new FightInfo(
                     fight.Id,
-                    fight.EndTime,
+                    fight.EndTime ?? fight.StartTime,
                     players,
                     opponents,
                     my.Exp,

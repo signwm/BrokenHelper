@@ -61,7 +61,7 @@ namespace BrokenHelper
             {
                 action();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // ignore or log elsewhere
             }
