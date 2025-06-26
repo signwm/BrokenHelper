@@ -144,7 +144,7 @@ namespace BrokenHelper.PacketHandlers
             fight.EndTime = time ?? DateTime.Now;
             context.SaveChanges();
 
-            _instanceHandler.CloseIfPending(fight.EndTime, context);
+            _instanceHandler.CloseIfPending(fight.EndTime!.Value, context);
 
             _currentFightId = null;
         }
