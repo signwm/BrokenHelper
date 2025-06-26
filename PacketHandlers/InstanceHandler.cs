@@ -78,6 +78,8 @@ namespace BrokenHelper.PacketHandlers
                     _currentMultiKillCounts[name] = count;
                     if (count >= required)
                     {
+                        if (!_pendingClose && Preferences.SoundSignals)
+                            Helpers.SoundHelper.PlayVictory();
                         _pendingClose = true;
                     }
                     continue;
@@ -91,6 +93,8 @@ namespace BrokenHelper.PacketHandlers
                         _currentGroupProgress[i].Add(name);
                         if (_currentGroupProgress[i].Count == PacketListener.BossGroups[i].Length)
                         {
+                            if (!_pendingClose && Preferences.SoundSignals)
+                                Helpers.SoundHelper.PlayVictory();
                             _pendingClose = true;
                         }
                         grouped = true;
@@ -100,6 +104,8 @@ namespace BrokenHelper.PacketHandlers
 
                 if (!grouped && PacketListener.SingleBosses.Contains(name))
                 {
+                    if (!_pendingClose && Preferences.SoundSignals)
+                        Helpers.SoundHelper.PlayVictory();
                     _pendingClose = true;
                 }
             }
@@ -124,8 +130,6 @@ namespace BrokenHelper.PacketHandlers
             {
                 instance.EndTime = time;
                 context.SaveChanges();
-                if (Preferences.SoundSignals)
-                    Helpers.SoundHelper.PlayInstanceEnded();
             }
 
             _currentInstanceId = null;
