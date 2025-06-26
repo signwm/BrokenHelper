@@ -16,6 +16,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
             context.Database.EnsureCreated();
             context.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+            context.Database.ExecuteSqlRaw("PRAGMA busy_timeout=5000;");
 
 
             var player = StatsService.GetDefaultPlayerName();
