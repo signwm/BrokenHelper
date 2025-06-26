@@ -31,9 +31,17 @@ namespace BrokenHelper
                 if (Preferences.SoundSignals)
                     SoundHelper.PlayBeep();
             }
+            else if (prefix == "3;1;")
+            {
+                SafeHandle(() => _fightHandler.HandleFightStart(time), prefix);
+            }
             else if (prefix == "3;19;")
             {
-                SafeHandle(() => _fightHandler.HandleFightMessage(rest, time), prefix);
+                SafeHandle(() => _fightHandler.HandleFightSummary(rest, time), prefix);
+            }
+            else if (prefix == "6;43;")
+            {
+                SafeHandle(() => _fightHandler.HandleFightEnd(time), prefix);
             }
             else if (prefix == "36;0;")
             {

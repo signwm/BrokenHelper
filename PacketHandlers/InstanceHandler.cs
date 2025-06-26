@@ -9,6 +9,7 @@ namespace BrokenHelper.PacketHandlers
         private int? _currentInstanceId;
         private HashSet<string>[] _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
         private readonly Dictionary<string, int> _currentMultiKillCounts = new();
+        private bool _pendingClose;
 
         public int? CurrentInstanceId => _currentInstanceId;
 
@@ -18,6 +19,7 @@ namespace BrokenHelper.PacketHandlers
             if (openInstance != null)
             {
                 _currentInstanceId = openInstance.Id;
+                _pendingClose = false;
             }
         }
 
@@ -57,6 +59,7 @@ namespace BrokenHelper.PacketHandlers
             context.SaveChanges();
 
             _currentInstanceId = instance.Id;
+            _pendingClose = false;
             _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
             _currentMultiKillCounts.Clear();
         }
@@ -75,7 +78,7 @@ namespace BrokenHelper.PacketHandlers
                     _currentMultiKillCounts[name] = count;
                     if (count >= required)
                     {
-                        CloseCurrentInstance(fightTime, context);
+                        _pendingClose = true;
                     }
                     continue;
                 }
@@ -88,7 +91,7 @@ namespace BrokenHelper.PacketHandlers
                         _currentGroupProgress[i].Add(name);
                         if (_currentGroupProgress[i].Count == PacketListener.BossGroups[i].Length)
                         {
-                            CloseCurrentInstance(fightTime, context);
+                            _pendingClose = true;
                         }
                         grouped = true;
                         break;
@@ -97,8 +100,17 @@ namespace BrokenHelper.PacketHandlers
 
                 if (!grouped && PacketListener.SingleBosses.Contains(name))
                 {
-                    CloseCurrentInstance(fightTime, context);
+                    _pendingClose = true;
                 }
+            }
+        }
+
+        public void CloseIfPending(DateTime time, Models.GameDbContext context)
+        {
+            if (_pendingClose)
+            {
+                CloseCurrentInstance(time, context);
+                _pendingClose = false;
             }
         }
 
@@ -119,6 +131,7 @@ namespace BrokenHelper.PacketHandlers
             _currentInstanceId = null;
             _currentMultiKillCounts.Clear();
             _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _pendingClose = false;
         }
     }
 }
