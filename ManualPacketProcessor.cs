@@ -1,5 +1,6 @@
 using System;
 using BrokenHelper.PacketHandlers;
+using BrokenHelper.Helpers;
 
 namespace BrokenHelper
 {
@@ -22,6 +23,11 @@ namespace BrokenHelper
             if (prefix == "1;118;")
             {
                 SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest, time), prefix);
+            }
+            else if (prefix == "3;2;")
+            {
+                if (Preferences.SoundSignals)
+                    SoundHelper.PlayBeep();
             }
             else if (prefix == "3;19;")
             {
