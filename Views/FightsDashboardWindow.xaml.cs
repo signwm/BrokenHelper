@@ -76,7 +76,7 @@ namespace BrokenHelper
                 TotalPsycho = summary.EarnedPsycho,
                 TotalDropValue = summary.DropValue,
                 TotalProfit = summary.FoundGold + summary.DropValue,
-                TotalInstanceTime = FormatDuration(totalDuration)
+                TotalInstanceTime = Helpers.TimeHelper.FormatDuration(totalDuration)
             };
             vm.LoadData(details);
 
@@ -128,11 +128,5 @@ namespace BrokenHelper
             RefreshData();
         }
 
-        private static string FormatDuration(TimeSpan time)
-        {
-            int minutes = (int)time.TotalMinutes;
-            int seconds = time.Seconds;
-            return $"{minutes}:{seconds:00}";
-        }
     }
 }

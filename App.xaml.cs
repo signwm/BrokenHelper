@@ -15,7 +15,6 @@ namespace BrokenHelper
             using var context = new GameDbContext();
             context.Database.EnsureCreated();
 
-            //StatsService.RecalculateDropPrices();
 
             var player = StatsService.GetDefaultPlayerName();
             _hud = new HudWindow(player);
