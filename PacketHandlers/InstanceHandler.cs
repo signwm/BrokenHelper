@@ -111,10 +111,6 @@ namespace BrokenHelper.PacketHandlers
                 }
             }
 
-            if (!wasPending && _pendingClose && Preferences.SoundSignals)
-            {
-                Helpers.SoundHelper.PlayVictory();
-            }
         }
 
         public void CloseIfPending(DateTime time, Models.GameDbContext context)
