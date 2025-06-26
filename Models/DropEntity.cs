@@ -4,8 +4,8 @@ namespace BrokenHelper.Models
     {
         public int Id { get; set; }
 
-        public int FightPlayerId { get; set; }
-        public FightPlayerEntity FightPlayer { get; set; } = null!;
+        public int FightId { get; set; }
+        public FightEntity Fight { get; set; } = null!;
 
         public DropType DropType { get; set; }
 
