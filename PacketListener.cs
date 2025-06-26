@@ -65,6 +65,8 @@ namespace BrokenHelper
         public void Start()
         {
             Directory.CreateDirectory(_dataPath);
+            Directory.CreateDirectory(Path.Combine(_dataPath, "relevant"));
+            Directory.CreateDirectory(Path.Combine(_dataPath, "other"));
             using (var context = new Models.GameDbContext())
             {
                 _instanceHandler.LoadOpenInstance(context);
@@ -138,59 +140,14 @@ namespace BrokenHelper
 
                 var prefix = message.Substring(0, secondSemi + 1); // e.g. 3;19;
                 var rest = message.Substring(secondSemi + 1);
-                rest = rest.Replace("%20", " ");
 
-                var snippet = rest.Length > 60 ? rest.Substring(0, 60) : rest;
-                Logger.Add(prefix, rest, DateTime.Now);
-
+                var folder = PacketProcessor.RelevantPrefixes.Contains(prefix) ? "relevant" : "other";
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
-                var filePath = Path.Combine(_dataPath, fileName);
+                var filePath = Path.Combine(_dataPath, folder, fileName);
                 var line = $"{rest} {DateTime.Now:O}";
                 File.AppendAllText(filePath, line + Environment.NewLine);
 
-                if (prefix == "1;118;")
-                {
-                    SafeHandle(() => _instanceHandler.HandleInstanceMessage(rest), prefix);
-                }
-                else if (prefix == "3;2;")
-                {
-                    if (Preferences.SoundSignals)
-                        SoundHelper.PlayAct();
-                }
-                else if (prefix == "3;1;")
-                {
-                    SafeHandle(() => _fightHandler.HandleFightStart(), prefix);
-                }
-                else if (prefix == "3;19;")
-                {
-                    SafeHandle(() => _fightHandler.HandleFightSummary(rest), prefix);
-                }
-                else if (prefix == "6;43;")
-                {
-                    if (Preferences.SoundSignals)
-                        SoundHelper.PlayAct();
-                    SafeHandle(() => _fightHandler.HandleFightEnd(), prefix);
-                }
-                else if (prefix == "36;0;")
-                {
-                    SafeHandle(() => PriceHandler.HandleItemPriceMessage(rest), prefix);
-                }
-                else if (prefix == "50;0;")
-                {
-                    SafeHandle(() => PriceHandler.HandleArtifactPriceMessage(rest), prefix);
-                }
-            }
-        }
-
-        private static void SafeHandle(Action action, string prefix)
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error handling packet {prefix}: {ex.Message}");
+                PacketProcessor.Process(prefix, rest, DateTime.Now, _instanceHandler, _fightHandler);
             }
         }
     }

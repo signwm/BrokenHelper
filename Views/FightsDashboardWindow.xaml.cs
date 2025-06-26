@@ -10,7 +10,12 @@ namespace BrokenHelper
         public FightsDashboardWindow()
         {
             InitializeComponent();
-            Loaded += (_, _) => RefreshData();
+            Loaded += (_, _) =>
+            {
+                fromPicker.Value = DateTime.Today;
+                toPicker.Value = DateTime.Today.AddDays(1);
+                RefreshData();
+            };
         }
 
         private static string GetPlayerName()
@@ -21,8 +26,8 @@ namespace BrokenHelper
         private void RefreshData()
         {
             grid.ItemsSource = null;
-            var from = fromPicker.SelectedDate ?? DateTime.Today;
-            var to = (toPicker.SelectedDate ?? DateTime.Today).AddDays(1);
+            var from = fromPicker.Value;
+            var to = toPicker.Value;
             var fights = StatsService.GetFights(GetPlayerName(), from, to, withoutInstance.IsChecked == true);
             grid.ItemsSource = fights;
         }
@@ -31,20 +36,20 @@ namespace BrokenHelper
         private void FilterChanged(object sender, RoutedEventArgs e) => RefreshData();
         private void DayBefore_Click(object sender, RoutedEventArgs e)
         {
-            fromPicker.SelectedDate = (fromPicker.SelectedDate ?? DateTime.Today).AddDays(-1);
-            toPicker.SelectedDate = (toPicker.SelectedDate ?? DateTime.Today).AddDays(-1);
+            fromPicker.Value = fromPicker.Value.AddDays(-1);
+            toPicker.Value = toPicker.Value.AddDays(-1);
             RefreshData();
         }
         private void DayAfter_Click(object sender, RoutedEventArgs e)
         {
-            fromPicker.SelectedDate = (fromPicker.SelectedDate ?? DateTime.Today).AddDays(1);
-            toPicker.SelectedDate = (toPicker.SelectedDate ?? DateTime.Today).AddDays(1);
+            fromPicker.Value = fromPicker.Value.AddDays(1);
+            toPicker.Value = toPicker.Value.AddDays(1);
             RefreshData();
         }
         private void Today_Click(object sender, RoutedEventArgs e)
         {
-            fromPicker.SelectedDate = DateTime.Today;
-            toPicker.SelectedDate = DateTime.Today;
+            fromPicker.Value = DateTime.Today;
+            toPicker.Value = DateTime.Today.AddDays(1);
             RefreshData();
         }
         private void Summary_Click(object sender, RoutedEventArgs e)
@@ -100,8 +105,8 @@ namespace BrokenHelper
                 return;
             }
 
-            var start = selected.Min(f => f.Time).AddSeconds(-10);
-            var end = selected.Max(f => f.Time);
+            var start = selected.Min(f => f.StartTime).AddSeconds(-10);
+            var end = selected.Max(f => f.EndTime);
             var window = new CreateInstanceWindow(StatsService.LastInstanceName, start, end)
             {
                 Owner = this
