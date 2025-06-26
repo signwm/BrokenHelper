@@ -9,13 +9,13 @@ namespace BrokenHelper
         private readonly DateTime _openTime;
         public string Prefix => (prefixBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty;
         public string Message => messageBox.Text;
-        public DateTime Time => timePicker.SelectedDate ?? _openTime;
+        public DateTime Time => timePicker.Value;
 
         public ManualPacketWindow()
         {
             InitializeComponent();
             _openTime = DateTime.Now;
-            timePicker.SelectedDate = _openTime;
+            timePicker.Value = _openTime;
         }
 
         private void Send_Click(object sender, RoutedEventArgs e)
