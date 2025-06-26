@@ -544,7 +544,7 @@ namespace BrokenHelper
         }
 
         private static readonly string[] OrnamentLabels =
-        {
+        [
             "[B1]",
             "[B2]",
             "[B3]",
@@ -554,7 +554,7 @@ namespace BrokenHelper
             "[G1]",
             "[G2]",
             "[G3]"
-        };
+        ];
 
         private static string AppendOrnamentLabel(string name, int? ornamentCount)
         {

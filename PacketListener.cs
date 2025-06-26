@@ -12,14 +12,14 @@ namespace BrokenHelper
 {
     internal class PacketListener
     {
-        internal static readonly string[][] BossGroups = new[]
-        {
+        internal static readonly string[][] BossGroups =
+        [
             new[] { "Duch Ognia", "Duch Energii", "Duch Zimna" },
-            new[] { "Babadek", "Gregorius", "Ghadira" },
-            new[] { "Mahet", "Tarul" },
-            new[] { "Lugus", "Morana" },
-            new[] { "Fyodor", "Gmo" }
-        };
+            ["Babadek", "Gregorius", "Ghadira"],
+            ["Mahet", "Tarul"],
+            ["Lugus", "Morana"],
+            ["Fyodor", "Gmo"]
+        ];
 
         internal static readonly Dictionary<string, int> MultiKillBosses = new()
         {
@@ -142,18 +142,20 @@ namespace BrokenHelper
 
                 var prefix = message.Substring(0, secondSemi + 1); // e.g. 3;19;
                 var rest = message.Substring(secondSemi + 1);
-
-                var folder = PacketProcessor.RelevantPrefixes.Contains(prefix) ? "relevant" : "other";
-                var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
-                var filePath = Path.Combine(_dataPath, folder, fileName);
                 var now = DateTime.Now;
-                var line = $"{rest} {now:O}";
-                File.AppendAllText(filePath, line + Environment.NewLine);
 
                 if (PacketProcessor.RelevantPrefixes.Contains(prefix))
                 {
-                    var logLine = $"{now:O} ||| {prefix} ||| {rest}";
-                    File.AppendAllText(_logPath, logLine + Environment.NewLine);
+                    var filePath = Path.Combine(_dataPath, "packet_log.txt");
+                    var line = $"{now:O} ||| {prefix} ||| {rest} ";
+                    File.AppendAllText(filePath, line + Environment.NewLine);
+                }
+                else
+                {
+                    var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
+                    var filePath = Path.Combine(_dataPath, fileName);
+                    var line = $"{now:O} ||| {rest}";
+                    File.AppendAllText(filePath, line + Environment.NewLine);
                 }
 
                 PacketProcessor.Process(prefix, rest, now, _instanceHandler, _fightHandler);

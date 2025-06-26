@@ -64,7 +64,7 @@ namespace BrokenHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error handling packet {prefix}: {ex.Message}");
+                Console.WriteLine($"Error handling packet {prefix}: {ex.Message} ({ex.StackTrace})");
             }
         }
     }

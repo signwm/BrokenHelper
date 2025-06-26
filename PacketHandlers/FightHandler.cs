@@ -236,7 +236,7 @@ namespace BrokenHelper.PacketHandlers
             if (string.IsNullOrWhiteSpace(value))
                 return Array.Empty<string>();
 
-            var parts = value.Split(new[] { "  " }, StringSplitOptions.None);
+            var parts = value.Split(["  "], StringSplitOptions.None);
             var result = new List<string>();
 
             foreach (var part in parts)
