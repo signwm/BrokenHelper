@@ -47,14 +47,35 @@ namespace BrokenHelper.PacketHandlers
         {
             if (_currentFightId == null)
             {
-                HandleFightStart(time);
+                using var ctx = new Models.GameDbContext();
+                var openFight = ctx.Fights.FirstOrDefault(f => f.EndTime == null);
+                if (openFight != null)
+                {
+                    _currentFightId = openFight.Id;
+                }
+                else
+                {
+                    HandleFightStart(time);
+                }
             }
 
             using var context = new Models.GameDbContext();
 
             var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
             if (fight == null)
-                return;
+            {
+                var openFight = context.Fights.FirstOrDefault(f => f.EndTime == null);
+                if (openFight != null)
+                {
+                    _currentFightId = openFight.Id;
+                    fight = openFight;
+                }
+                else
+                {
+                    HandleFightStart(time);
+                    fight = context.Fights.First(f => f.Id == _currentFightId);
+                }
+            }
 
             var fightTime = time ?? DateTime.Now;
 
@@ -85,15 +106,35 @@ namespace BrokenHelper.PacketHandlers
         public void HandleFightEnd(DateTime? time = null)
         {
             if (_currentFightId == null)
-                return;
+            {
+                using var ctx = new Models.GameDbContext();
+                var openFight = ctx.Fights.FirstOrDefault(f => f.EndTime == null);
+                if (openFight != null)
+                {
+                    _currentFightId = openFight.Id;
+                }
+                else
+                {
+                    HandleFightStart(time);
+                }
+            }
 
             using var context = new Models.GameDbContext();
 
             var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
             if (fight == null)
             {
-                _currentFightId = null;
-                return;
+                var openFight = context.Fights.FirstOrDefault(f => f.EndTime == null);
+                if (openFight != null)
+                {
+                    _currentFightId = openFight.Id;
+                    fight = openFight;
+                }
+                else
+                {
+                    HandleFightStart(time);
+                    fight = context.Fights.First(f => f.Id == _currentFightId);
+                }
             }
 
             fight.EndTime = time ?? DateTime.Now;

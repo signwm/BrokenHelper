@@ -67,7 +67,14 @@ namespace BrokenHelper.PacketHandlers
         public void CheckInstanceCompletion(IEnumerable<string> opponentNames, DateTime fightTime, Models.GameDbContext context)
         {
             if (_currentInstanceId == null)
-                return;
+            {
+                var open = context.Instances.FirstOrDefault(i => i.EndTime == null);
+                if (open == null)
+                    return;
+                _currentInstanceId = open.Id;
+            }
+
+            bool wasPending = _pendingClose;
 
             foreach (var name in opponentNames)
             {
@@ -103,6 +110,11 @@ namespace BrokenHelper.PacketHandlers
                     _pendingClose = true;
                 }
             }
+
+            if (!wasPending && _pendingClose && Preferences.SoundSignals)
+            {
+                Helpers.SoundHelper.PlayVictory();
+            }
         }
 
         public void CloseIfPending(DateTime time, Models.GameDbContext context)
@@ -117,15 +129,18 @@ namespace BrokenHelper.PacketHandlers
         public void CloseCurrentInstance(DateTime time, Models.GameDbContext context)
         {
             if (_currentInstanceId == null)
-                return;
+            {
+                var open = context.Instances.FirstOrDefault(i => i.EndTime == null);
+                if (open == null)
+                    return;
+                _currentInstanceId = open.Id;
+            }
 
             var instance = context.Instances.FirstOrDefault(i => i.Id == _currentInstanceId.Value);
             if (instance != null && instance.EndTime == null)
             {
                 instance.EndTime = time;
                 context.SaveChanges();
-                if (Preferences.SoundSignals)
-                    Helpers.SoundHelper.PlayInstanceEnded();
             }
 
             _currentInstanceId = null;
