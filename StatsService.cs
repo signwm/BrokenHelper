@@ -321,7 +321,7 @@ namespace BrokenHelper
                 .FirstOrDefault();
 
             return lastFightId == 0
-                ? new List<DropSummaryDetailed>()
+                ? []
                 : GetDropDetails(playerName, new[] { lastFightId });
         }
 
@@ -336,7 +336,7 @@ namespace BrokenHelper
 
             var instance = instanceQuery.FirstOrDefault(i => i.EndTime == null) ?? instanceQuery.FirstOrDefault();
             if (instance == null)
-                return new List<DropSummaryDetailed>();
+                return [];
 
             var fightIds = instance.Fights.Select(f => f.Id).ToList();
             return GetDropDetails(playerName, fightIds);

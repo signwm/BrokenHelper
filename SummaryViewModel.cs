@@ -15,9 +15,9 @@ namespace BrokenHelper
         public int TotalProfit { get; set; }
         public string TotalInstanceTime { get; set; } = string.Empty;
 
-        public List<DropSummaryDetailed> EquipmentList { get; private set; } = new();
-        public List<DropSummaryDetailed> ArtifactList { get; private set; } = new();
-        public List<DropSummaryDetailed> ItemList { get; private set; } = new();
+        public List<DropSummaryDetailed> EquipmentList { get; private set; } = [];
+        public List<DropSummaryDetailed> ArtifactList { get; private set; } = [];
+        public List<DropSummaryDetailed> ItemList { get; private set; } = [];
 
         public int EquipmentSum { get; private set; }
         public int ArtifactSum { get; private set; }

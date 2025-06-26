@@ -32,8 +32,8 @@ namespace BrokenHelper
         private TextBlock _instanceDropValue = null!;
         private TextBlock _instanceDurationValue = null!;
 
-        private List<DropSummaryDetailed> _fightDrops = new();
-        private List<DropSummaryDetailed> _instanceDrops = new();
+        private List<DropSummaryDetailed> _fightDrops = [];
+        private List<DropSummaryDetailed> _instanceDrops = [];
 
         private void OnFightStarted()
         {

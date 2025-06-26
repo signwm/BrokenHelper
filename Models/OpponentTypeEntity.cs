@@ -9,6 +9,6 @@ namespace BrokenHelper.Models
         public int Level { get; set; }
         public bool IsBoss { get; set; }
 
-        public List<FightOpponentEntity> Fights { get; set; } = new();
+        public List<FightOpponentEntity> Fights { get; set; } = [];
     }
 }

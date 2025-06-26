@@ -12,7 +12,7 @@ namespace BrokenHelper.Models
         public int? InstanceId { get; set; }
         public InstanceEntity? Instance { get; set; }
 
-        public List<FightPlayerEntity> Players { get; set; } = new();
-        public List<FightOpponentEntity> Opponents { get; set; } = new();
+        public List<FightPlayerEntity> Players { get; set; } = [];
+        public List<FightOpponentEntity> Opponents { get; set; } = [];
     }
 }

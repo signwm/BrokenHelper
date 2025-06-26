@@ -16,6 +16,6 @@ namespace BrokenHelper.Models
         public int Exp { get; set; }
         public int Psycho { get; set; }
 
-        public List<DropEntity> Drops { get; set; } = new();
+        public List<DropEntity> Drops { get; set; } = [];
     }
 }

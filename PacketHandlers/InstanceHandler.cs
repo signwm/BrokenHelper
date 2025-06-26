@@ -8,7 +8,7 @@ namespace BrokenHelper.PacketHandlers
     {
         private int? _currentInstanceId;
         private HashSet<string>[] _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
-        private readonly Dictionary<string, int> _currentMultiKillCounts = new();
+        private readonly Dictionary<string, int> _currentMultiKillCounts = [];
         private bool _pendingClose;
 
         public int? CurrentInstanceId => _currentInstanceId;

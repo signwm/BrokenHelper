@@ -12,6 +12,6 @@ namespace BrokenHelper.Models
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
 
-        public List<FightEntity> Fights { get; set; } = new();
+        public List<FightEntity> Fights { get; set; } = [];
     }
 }

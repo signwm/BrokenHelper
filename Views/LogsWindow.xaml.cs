@@ -9,7 +9,7 @@ namespace BrokenHelper
 {
     public partial class LogsWindow : Window
     {
-        private readonly ObservableCollection<string> _prefixes = new();
+        private readonly ObservableCollection<string> _prefixes = [];
 
         public LogsWindow()
         {

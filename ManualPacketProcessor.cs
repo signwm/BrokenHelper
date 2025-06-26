@@ -61,9 +61,11 @@ namespace BrokenHelper
             {
                 action();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // ignore or log elsewhere
+                Console.WriteLine("Failed with " + prefix);
+                Console.WriteLine(ex.InnerException);
+                Console.WriteLine(ex.StackTrace);
             }
         }
     }

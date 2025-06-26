@@ -8,7 +8,7 @@ namespace BrokenHelper
 
     internal static class Logger
     {
-        private static readonly List<LogEntry> _entries = new();
+        private static readonly List<LogEntry> _entries = [];
         public static event Action<LogEntry>? LogAdded;
 
         public static IReadOnlyList<LogEntry> Entries

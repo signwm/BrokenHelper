@@ -27,7 +27,7 @@ namespace BrokenHelper
             { "Osłabiony Konstrukt", 3 }
         };
 
-        internal static readonly HashSet<string> SingleBosses = new(new[]
+        internal static readonly HashSet<string> SingleBosses = [.. new[]
         {
             "Admirał Utoru", "Angwalf-Htaga", "Aqua Regis", "Bibliotekarz",
             "Draugul", "Duch Zamku", "Garthmog", "Geomorph", "Herszt",
@@ -36,7 +36,7 @@ namespace BrokenHelper
             "Niedźwiedź", "Obserwator", "Ropucha", "Selena", "Sidraga",
             "Tygrys", "Utor Komandor", "Valdarog", "Vidvar", "Vough",
             "Wendigo", "Władca Marionetek"
-        });
+        }];
 
         internal static readonly int[,] QuoteItemCoefficients = new int[,]
         {
@@ -52,7 +52,7 @@ namespace BrokenHelper
         };
 
         private ICaptureDevice? _device;
-        private readonly List<byte> _buffer = new();
+        private readonly List<byte> _buffer = [];
         private readonly string _dataPath = Path.Combine("data", "packets");
         private readonly InstanceHandler _instanceHandler = new();
         private readonly FightHandler _fightHandler;
