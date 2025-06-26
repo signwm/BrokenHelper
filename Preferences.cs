@@ -72,11 +72,7 @@ namespace BrokenHelper
                 var name = Get("playername");
                 if (!string.IsNullOrWhiteSpace(name))
                     return name;
-
-                using var ctx = new GameDbContext();
-                name = ctx.Players.FirstOrDefault()?.Name ?? string.Empty;
-                if (!string.IsNullOrWhiteSpace(name))
-                    Set("playername", name);
+                name = "Unknown";
                 return name;
             }
             set => Set("playername", value);
