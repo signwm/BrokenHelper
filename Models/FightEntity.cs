@@ -7,7 +7,7 @@ namespace BrokenHelper.Models
     {
         public int Id { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         public int? InstanceId { get; set; }
         public InstanceEntity? Instance { get; set; }
