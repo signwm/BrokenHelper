@@ -54,6 +54,7 @@ namespace BrokenHelper
         private ICaptureDevice? _device;
         private readonly List<byte> _buffer = [];
         private readonly string _dataPath = Path.Combine("data", "packets");
+        private readonly string _logPath = Path.Combine("data", "packet_log.txt");
         private readonly InstanceHandler _instanceHandler = new();
         private readonly FightHandler _fightHandler;
 
@@ -67,6 +68,7 @@ namespace BrokenHelper
             Directory.CreateDirectory(_dataPath);
             Directory.CreateDirectory(Path.Combine(_dataPath, "relevant"));
             Directory.CreateDirectory(Path.Combine(_dataPath, "other"));
+            Directory.CreateDirectory(Path.GetDirectoryName(_logPath)!);
             using (var context = new Models.GameDbContext())
             {
                 _instanceHandler.LoadOpenInstance(context);
@@ -144,10 +146,17 @@ namespace BrokenHelper
                 var folder = PacketProcessor.RelevantPrefixes.Contains(prefix) ? "relevant" : "other";
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
                 var filePath = Path.Combine(_dataPath, folder, fileName);
-                var line = $"{rest} {DateTime.Now:O}";
+                var now = DateTime.Now;
+                var line = $"{rest} {now:O}";
                 File.AppendAllText(filePath, line + Environment.NewLine);
 
-                PacketProcessor.Process(prefix, rest, DateTime.Now, _instanceHandler, _fightHandler);
+                if (PacketProcessor.RelevantPrefixes.Contains(prefix))
+                {
+                    var logLine = $"{now:O} ||| {prefix} ||| {rest}";
+                    File.AppendAllText(_logPath, logLine + Environment.NewLine);
+                }
+
+                PacketProcessor.Process(prefix, rest, now, _instanceHandler, _fightHandler);
             }
         }
     }
