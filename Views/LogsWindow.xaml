@@ -1,0 +1,26 @@
+<Window x:Class="BrokenHelper.LogsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Logi" Height="400" Width="600">
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ListBox x:Name="prefixList" Grid.Row="0" Grid.Column="0"
+                 SelectionMode="Extended"
+                 SelectionChanged="prefixList_SelectionChanged" />
+        <RichTextBox x:Name="logBox" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"
+                     IsReadOnly="True" VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Hidden"
+                     TextWrapping="NoWrap" />
+
+        <CheckBox x:Name="autoScroll" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"
+                  IsChecked="True" Content="Auto scroll" HorizontalAlignment="Right"/>
+    </Grid>
+</Window>

@@ -18,6 +18,7 @@ namespace BrokenHelper
         private PacketListener? _listener;
         private FightsDashboardWindow? _fightsWindow;
         private InstancesDashboardWindow? _instancesWindow;
+        private LogsWindow? _logsWindow;
         private readonly MenuItem _listenMenuItem;
 
         private TextBlock _fightExpValue = null!;
@@ -69,6 +70,10 @@ namespace BrokenHelper
             var fights = new MenuItem { Header = "Walki" };
             fights.Click += (_, _) => ShowFights();
             menu.Items.Add(fights);
+
+            var logs = new MenuItem { Header = "Logi" };
+            logs.Click += (_, _) => ShowLogs();
+            menu.Items.Add(logs);
 
             var manual = new MenuItem { Header = "Ręczne wprowadzanie pakietu" };
             manual.Click += (_, _) => ShowManualPacketWindow();
@@ -344,6 +349,18 @@ namespace BrokenHelper
             }
         }
 
+        private void ShowLogs()
+        {
+            if (_logsWindow == null)
+            {
+                _logsWindow = new LogsWindow();
+                _logsWindow.Closed += (_, _) => _logsWindow = null;
+            }
+            _logsWindow.Owner = this;
+            _logsWindow.Show();
+            _logsWindow.Activate();
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             Preferences.SetInt("hud_left", (int)Left);
@@ -353,6 +370,7 @@ namespace BrokenHelper
             _listener?.Stop();
             _fightsWindow?.Close();
             _instancesWindow?.Close();
+            _logsWindow?.Close();
             base.OnClosed(e);
         }
     }
