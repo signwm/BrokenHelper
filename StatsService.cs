@@ -308,6 +308,39 @@ namespace BrokenHelper
             return result;
         }
 
+        public static List<DropSummaryDetailed> GetLastFightDropDetails(string playerName)
+        {
+            using var context = new GameDbContext();
+
+            var lastFightId = context.FightPlayers
+                .Include(fp => fp.Fight)
+                .Where(fp => fp.Player.Name == playerName)
+                .OrderByDescending(fp => fp.Fight.EndTime)
+                .Select(fp => fp.FightId)
+                .FirstOrDefault();
+
+            return lastFightId == 0
+                ? new List<DropSummaryDetailed>()
+                : GetDropDetails(playerName, new[] { lastFightId });
+        }
+
+        public static List<DropSummaryDetailed> GetCurrentOrLastInstanceDropDetails(string playerName)
+        {
+            using var context = new GameDbContext();
+
+            var instanceQuery = context.Instances
+                .Include(i => i.Fights).ThenInclude(f => f.Players).ThenInclude(fp => fp.Player)
+                .Where(i => i.Fights.Any(f => f.Players.Any(fp => fp.Player.Name == playerName)))
+                .OrderByDescending(i => i.StartTime);
+
+            var instance = instanceQuery.FirstOrDefault(i => i.EndTime == null) ?? instanceQuery.FirstOrDefault();
+            if (instance == null)
+                return new List<DropSummaryDetailed>();
+
+            var fightIds = instance.Fights.Select(f => f.Id).ToList();
+            return GetDropDetails(playerName, fightIds);
+        }
+
         public static string GetDefaultPlayerName()
         {
             return Preferences.PlayerName;

@@ -1,5 +1,8 @@
 using System;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -27,6 +30,9 @@ namespace BrokenHelper
         private TextBlock _instanceGoldValue = null!;
         private TextBlock _instanceDropValue = null!;
         private TextBlock _instanceDurationValue = null!;
+
+        private List<DropSummaryDetailed> _fightDrops = new();
+        private List<DropSummaryDetailed> _instanceDrops = new();
 
         public HudWindow(string playerName)
         {
@@ -176,6 +182,7 @@ namespace BrokenHelper
             if (fight == null)
             {
                 ClearFight();
+                _fightDrops.Clear();
             }
             else
             {
@@ -183,12 +190,15 @@ namespace BrokenHelper
                 _fightPsychoValue.Text = FormatNumber(fight.EarnedPsycho);
                 _fightGoldValue.Text = FormatNumber(fight.FoundGold);
                 _fightDropValue.Text = FormatNumber(fight.DropValue);
+                _fightDrops = StatsService.GetLastFightDropDetails(player);
             }
+            UpdateTooltip(_fightDropValue, _fightDrops);
 
             var instance = StatsService.GetCurrentOrLastInstance(player);
             if (instance == null)
             {
                 ClearInstance();
+                _instanceDrops.Clear();
             }
             else
             {
@@ -198,11 +208,13 @@ namespace BrokenHelper
                 _instanceGoldValue.Text = FormatNumber(instance.FoundGold);
                 _instanceDropValue.Text = FormatNumber(instance.DropValue);
                 _instanceDurationValue.Text = instance.Duration;
+                _instanceDrops = StatsService.GetCurrentOrLastInstanceDropDetails(player);
 
                 var lastFinished = StatsService.GetLastFinishedInstance(player);
                 bool finished = lastFinished != null && lastFinished.Id == instance.Id;
                 _instanceDurationValue.Foreground = finished ? Brushes.LightGreen : Brushes.White;
             }
+            UpdateTooltip(_instanceDropValue, _instanceDrops);
         }
 
         private void ClearFight()
@@ -221,6 +233,31 @@ namespace BrokenHelper
             _instanceGoldValue.Text = "-";
             _instanceDropValue.Text = "-";
             _instanceDurationValue.Text = "-";
+        }
+
+        private void UpdateTooltip(TextBlock block, List<DropSummaryDetailed> drops)
+        {
+            if (drops.Count == 0)
+            {
+                block.ToolTip = null;
+                return;
+            }
+
+            int leftLen = drops.Max(d => $"{d.Name} ({d.Quantity})".Length);
+            var sb = new StringBuilder();
+            foreach (var d in drops)
+            {
+                string left = $"{d.Name} ({d.Quantity})";
+                sb.Append(left.PadRight(leftLen + 1));
+                sb.Append(FormatNumber(d.TotalPrice));
+                sb.AppendLine();
+            }
+
+            block.ToolTip = new TextBlock
+            {
+                Text = sb.ToString().TrimEnd(),
+                FontFamily = new FontFamily("Consolas")
+            };
         }
 
         private void HudWindow_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
