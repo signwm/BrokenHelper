@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <ListBox x:Name="prefixList" Grid.Row="0" Grid.Column="0"
-                 SelectionMode="Extended"
+                 SelectionMode="Multiple"
                  SelectionChanged="prefixList_SelectionChanged" />
         <RichTextBox x:Name="logBox" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0"
                      IsReadOnly="True" VerticalScrollBarVisibility="Auto"

@@ -141,7 +141,6 @@ namespace BrokenHelper
                 rest = rest.Replace("%20", " ");
 
                 var snippet = rest.Length > 60 ? rest.Substring(0, 60) : rest;
-                Console.WriteLine($"{DateTime.Now:O} {prefix} {snippet}");
                 Logger.Add(prefix, rest, DateTime.Now);
 
                 var fileName = prefix.Replace(';', '_').TrimEnd('_') + ".txt";
@@ -181,7 +180,7 @@ namespace BrokenHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error handling packet {prefix}: {ex.Message}");
+                // ignore or log elsewhere
             }
         }
     }
