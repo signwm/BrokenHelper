@@ -310,7 +310,7 @@ namespace BrokenHelper
 
         public static string GetDefaultPlayerName()
         {
-            return "Sign";
+            return Preferences.PlayerName;
         }
 
         public static FightsSummary? GetLastFightSummary(string playerName)

@@ -25,6 +25,7 @@ namespace BrokenHelper
         protected override void OnExit(ExitEventArgs e)
         {
             _hud?.Close();
+            Preferences.Save();
             base.OnExit(e);
         }
     }
