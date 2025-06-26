@@ -244,19 +244,22 @@ namespace BrokenHelper
             }
 
             int leftLen = drops.Max(d => $"{d.Name} ({d.Quantity})".Length);
+            int rightLen = drops.Max(d => FormatNumber(d.TotalPrice).Length);
             var sb = new StringBuilder();
             foreach (var d in drops)
             {
                 string left = $"{d.Name} ({d.Quantity})";
                 sb.Append(left.PadRight(leftLen + 1));
-                sb.Append(FormatNumber(d.TotalPrice));
+                sb.Append(FormatNumber(d.TotalPrice).PadLeft(rightLen));
                 sb.AppendLine();
             }
 
             block.ToolTip = new TextBlock
             {
                 Text = sb.ToString().TrimEnd(),
-                FontFamily = new FontFamily("Consolas")
+                FontFamily = new FontFamily("Consolas"),
+                Background = Brushes.Black,
+                Foreground = Brushes.White
             };
         }
 
