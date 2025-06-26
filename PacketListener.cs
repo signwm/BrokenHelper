@@ -12,6 +12,44 @@ namespace BrokenHelper
 {
     internal class PacketListener
     {
+        internal static readonly string[][] BossGroups = new[]
+        {
+            new[] { "Duch Ognia", "Duch Energii", "Duch Zimna" },
+            new[] { "Babadek", "Gregorius", "Ghadira" },
+            new[] { "Mahet", "Tarul" },
+            new[] { "Lugus", "Morana" },
+            new[] { "Fyodor", "Gmo" }
+        };
+
+        internal static readonly Dictionary<string, int> MultiKillBosses = new()
+        {
+            { "Konstrukt", 3 },
+            { "Osłabiony Konstrukt", 3 }
+        };
+
+        internal static readonly HashSet<string> SingleBosses = new(new[]
+        {
+            "Admirał Utoru", "Angwalf-Htaga", "Aqua Regis", "Bibliotekarz",
+            "Draugul", "Duch Zamku", "Garthmog", "Geomorph", "Herszt",
+            "Heurokratos", "Hvar", "Ichtion", "Ivravul", "Jaskółka",
+            "Jastrzębior", "Krzyżak", "Modliszka", "Mortus", "Nidhogg",
+            "Niedźwiedź", "Obserwator", "Ropucha", "Selena", "Sidraga",
+            "Tygrys", "Utor Komandor", "Valdarog", "Vidvar", "Vough",
+            "Wendigo", "Władca Marionetek"
+        });
+
+        internal static readonly int[,] QuoteItemCoefficients = new int[,]
+        {
+            { 4, 4, 4, 20, 20, 20, 67, 67, 67, 351, 351, 351 },
+            { 7, 7, 7, 27, 27, 27, 90, 90, 90, 585, 585, 585 },
+            { 10, 10, 10, 54, 54, 54, 180, 180, 180, 1170, 1170, 1170 },
+            { 16, 16, 16, 81, 81, 81, 270, 270, 270, 1755, 1755, 1755 },
+            { 27, 27, 27, 135, 135, 135, 450, 450, 450, 2925, 2925, 2925 },
+            { 40, 40, 40, 202, 202, 202, 675, 675, 675, 4680, 4680, 4680 },
+            { 67, 67, 67, 337, 337, 337, 1125, 1125, 1125, 7605, 7605, 7605 },
+            { 135, 135, 135, 675, 675, 675, 2250, 2250, 2250, 14625, 14625, 14625 },
+            { 337, 337, 337, 1687, 1687, 1687, 5850, 5850, 5850, 35100, 35100, 35100 }
+        };
 
         private ICaptureDevice? _device;
         private readonly List<byte> _buffer = new();
