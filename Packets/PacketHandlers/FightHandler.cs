@@ -302,6 +302,7 @@ namespace BrokenHelper.PacketHandlers
                 var afterThird = segments[3];
                 var valueSegments = afterThird.Split('$');
                 int? valueField = null;
+                double? parsedVal = null;
                 int? ornamentField = null;
                 string? orbCode = null;
                 string? orbName = null;
@@ -310,9 +311,9 @@ namespace BrokenHelper.PacketHandlers
                 {
                     var third = valueSegments[2];
                     var thirdParts = third.Split(',');
-                    if (thirdParts.Length >= 4 && int.TryParse(thirdParts[3], out var val))
+                    if (thirdParts.Length >= 4 && double.TryParse(thirdParts[3], out var val))
                     {
-                        valueField = (int)Math.Round(val * multiplier);
+                        parsedVal = val;
                     }
                     if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
                     {
@@ -336,12 +337,16 @@ namespace BrokenHelper.PacketHandlers
                     }
                 }
 
-                if (special)
+                var type = special
+                    ? (name.Contains('"') ? Models.EquipmentType.Rar : Models.EquipmentType.Syng)
+                    : Models.EquipmentType.Trash;
+
+                if (type == Models.EquipmentType.Rar || type == Models.EquipmentType.Syng)
                 {
                     var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
                     var essencePrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Esencja")?.Value ?? 0;
 
-                    if (name.Contains('"'))
+                    if (type == Models.EquipmentType.Rar)
                     {
                         if (ornamentField.HasValue && quality.HasValue &&
                             ornamentField.Value >= 0 && ornamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
@@ -368,6 +373,18 @@ namespace BrokenHelper.PacketHandlers
                     {
                         valueField = 60 * shardPrice;
                     }
+                }
+
+                if (valueField == null && parsedVal.HasValue)
+                {
+                    var val = type switch
+                    {
+                        Models.EquipmentType.Trash => 0.025,
+                        Models.EquipmentType.Syng => 0.3,
+                        _ => parsedVal.Value
+                    };
+
+                    valueField = (int)Math.Round(val * multiplier);
                 }
 
                 var drop = new Models.DropEntity
