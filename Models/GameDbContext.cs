@@ -57,13 +57,12 @@ namespace BrokenHelper.Models
                 .IsUnique();
 
             modelBuilder.Entity<DropTypeEntity>().HasData(
-                Enum.GetValues<DropType>()
+                [.. Enum.GetValues<DropType>()
                     .Select(v => new DropTypeEntity
                     {
                         Id = (int)v,
                         Name = v.ToString()
-                    })
-                    .ToArray());
+                    })]);
 
         }
     }

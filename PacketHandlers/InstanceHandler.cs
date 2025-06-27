@@ -7,7 +7,7 @@ namespace BrokenHelper.PacketHandlers
     internal class InstanceHandler
     {
         private int? _currentInstanceId;
-        private HashSet<string>[] _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
+        private HashSet<string>[] _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
         private readonly Dictionary<string, int> _currentMultiKillCounts = [];
         private bool _pendingClose;
 
@@ -60,7 +60,7 @@ namespace BrokenHelper.PacketHandlers
 
             _currentInstanceId = instance.Id;
             _pendingClose = false;
-            _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
             _currentMultiKillCounts.Clear();
 
             GameEvents.OnInstanceStarted();
@@ -143,7 +143,7 @@ namespace BrokenHelper.PacketHandlers
 
             _currentInstanceId = null;
             _currentMultiKillCounts.Clear();
-            _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
+            _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
             _pendingClose = false;
         }
     }

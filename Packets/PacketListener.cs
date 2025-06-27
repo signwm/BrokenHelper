@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using BrokenHelper.Helpers;
 using BrokenHelper.PacketHandlers;
 
 namespace BrokenHelper
@@ -100,7 +99,7 @@ namespace BrokenHelper
         private void OnPacketArrival(object sender, PacketCapture e)
         {
             var raw = e.GetPacket();
-            var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data.ToArray());
+            var packet = Packet.ParsePacket(raw.LinkLayerType, [.. raw.Data]);
             var tcp = packet.Extract<TcpPacket>();
             if (tcp == null)
                 return;
@@ -132,7 +131,7 @@ namespace BrokenHelper
                 var messageBytes = _buffer.GetRange(0, index);
                 _buffer.RemoveRange(0, index + 1); // remove message and zero byte
 
-                var message = Encoding.UTF8.GetString(messageBytes.ToArray());
+                var message = Encoding.UTF8.GetString([.. messageBytes]);
                 var firstSemi = message.IndexOf(';');
                 if (firstSemi < 0)
                     continue;

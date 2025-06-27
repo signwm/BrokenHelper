@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Globalization;
 
 namespace BrokenHelper.PacketHandlers
 {
-    internal class FightHandler
+    internal partial class FightHandler
     {
         private readonly InstanceHandler _instanceHandler;
         private int? _currentFightId;
@@ -48,38 +47,8 @@ namespace BrokenHelper.PacketHandlers
 
         public void HandleFightSummary(string message, DateTime? time = null)
         {
-            if (_currentFightId == null)
-            {
-                using var ctx = new Models.GameDbContext();
-                var openFight = ctx.Fights.FirstOrDefault(f => f.EndTime == null);
-                if (openFight != null)
-                {
-                    _currentFightId = openFight.Id;
-                }
-                else
-                {
-                    HandleFightStart(time);
-                }
-            }
-
             using var context = new Models.GameDbContext();
-
-            var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
-            if (fight == null)
-            {
-                var openFight = context.Fights.FirstOrDefault(f => f.EndTime == null);
-                if (openFight != null)
-                {
-                    _currentFightId = openFight.Id;
-                    fight = openFight;
-                }
-                else
-                {
-                    HandleFightStart(time);
-                    fight = context.Fights.First(f => f.Id == _currentFightId);
-                }
-            }
-
+            var fight = EnsureFightExists(time, context);
             var fightTime = time ?? DateTime.Now;
 
             var entries = message.Split("[--]", StringSplitOptions.None);
@@ -114,37 +83,8 @@ namespace BrokenHelper.PacketHandlers
 
         public void HandleFightEnd(DateTime? time = null)
         {
-            if (_currentFightId == null)
-            {
-                using var ctx = new Models.GameDbContext();
-                var openFight = ctx.Fights.FirstOrDefault(f => f.EndTime == null);
-                if (openFight != null)
-                {
-                    _currentFightId = openFight.Id;
-                }
-                else
-                {
-                    HandleFightStart(time);
-                }
-            }
-
             using var context = new Models.GameDbContext();
-
-            var fight = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
-            if (fight == null)
-            {
-                var openFight = context.Fights.FirstOrDefault(f => f.EndTime == null);
-                if (openFight != null)
-                {
-                    _currentFightId = openFight.Id;
-                    fight = openFight;
-                }
-                else
-                {
-                    HandleFightStart(time);
-                    fight = context.Fights.First(f => f.Id == _currentFightId);
-                }
-            }
+            var fight = EnsureFightExists(time, context);
 
             fight.EndTime = time ?? DateTime.Now;
             context.SaveChanges();
@@ -154,6 +94,25 @@ namespace BrokenHelper.PacketHandlers
             _currentFightId = null;
 
             GameEvents.OnFightEnded();
+        }
+
+        private Models.FightEntity EnsureFightExists(DateTime? time, Models.GameDbContext context)
+        {
+            if (_currentFightId != null)
+            {
+                var existing = context.Fights.FirstOrDefault(f => f.Id == _currentFightId);
+                if (existing != null) return existing;
+            }
+
+            var openFight = context.Fights.FirstOrDefault(f => f.EndTime == null);
+            if (openFight != null)
+            {
+                _currentFightId = openFight.Id;
+                return openFight;
+            }
+
+            HandleFightStart(time);
+            return context.Fights.First(f => f.Id == _currentFightId);
         }
 
         private static void HandleFightOpponent(string[] parts, Models.FightEntity fight, Models.GameDbContext context)
@@ -217,8 +176,8 @@ namespace BrokenHelper.PacketHandlers
 
             ParseItems(parts.ElementAtOrDefault(9), fight, context);
             ParseDrifs(parts.ElementAtOrDefault(25), fight, context);
-            ParseEquipment(parts.ElementAtOrDefault(7), fight, context, 0.3, true);
-            ParseEquipment(parts.ElementAtOrDefault(27), fight, context, 0.025, false);
+            ParseEquipment(parts.ElementAtOrDefault(7), fight, context, true);
+            ParseEquipment(parts.ElementAtOrDefault(27), fight, context, false);
 
             context.SaveChanges();
         }
@@ -313,7 +272,6 @@ namespace BrokenHelper.PacketHandlers
         private static void ParseEquipment(string? value,
             Models.FightEntity fight,
             Models.GameDbContext context,
-            double multiplier,
             bool special)
         {
             foreach (var part in SplitEntries(value))
@@ -326,7 +284,7 @@ namespace BrokenHelper.PacketHandlers
                     continue;
 
                 var type = GetDropType(info.Name, special);
-                var valueField = CalculateEquipmentValue(context, type, info, multiplier);
+                var valueField = CalculateEquipmentValue(context, type, info);
 
                 AddEquipmentDrop(context, fight, type, valueField, info);
             }
@@ -395,59 +353,11 @@ namespace BrokenHelper.PacketHandlers
         private static int? CalculateEquipmentValue(
             Models.GameDbContext context,
             Models.DropType type,
-            EquipmentInfo info,
-            double multiplier)
+            EquipmentInfo info)
         {
-            int? valueField = null;
-
-            if (type == Models.DropType.Rar || type == Models.DropType.Syng)
-            {
-                var shardPrice = context.Items.FirstOrDefault(i => i.Name == "Odłamek")?.Value ?? 0;
-                var essencePrice = context.Items.FirstOrDefault(i => i.Name == "Esencja")?.Value ?? 0;
-
-                if (type == Models.DropType.Rar)
-                {
-                    if (info.OrnamentField.HasValue && info.Quality.HasValue &&
-                        info.OrnamentField.Value >= 0 && info.OrnamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
-                        info.Quality.Value >= 7 && info.Quality.Value <= PacketListener.QuoteItemCoefficients.GetLength(1))
-                    {
-                        int coef = PacketListener.QuoteItemCoefficients[info.OrnamentField.Value, info.Quality.Value - 1];
-                        var basePrice = info.Quality.Value >= 7 ? shardPrice : essencePrice;
-                        valueField = coef * basePrice;
-                    }
-                }
-                else if (info.Name.Contains("Smoków"))
-                {
-                    valueField = 12 * shardPrice;
-                }
-                else if (info.Name.Contains("Vorlingów") || info.Name.Contains("Lodu"))
-                {
-                    valueField = 30 * shardPrice;
-                }
-                else if (info.Name.Contains("Władców"))
-                {
-                    valueField = 150 * shardPrice;
-                }
-                else if (info.Name.Contains("Dawnych Orków"))
-                {
-                    valueField = 60 * shardPrice;
-                }
-            }
-
-            if (valueField == null && info.ParsedVal.HasValue)
-            {
-                var val = type switch
-                {
-                    Models.DropType.Trash => 0.025,
-                    Models.DropType.Syng => 0.3,
-                    _ => info.ParsedVal.Value
-                };
-
-                valueField = (int)Math.Round(val * multiplier);
-            }
-
-            return valueField;
+            return EquipmentValueCalculator.CalculateValue(context, type, info);
         }
+
 
         private static void AddEquipmentDrop(
             Models.GameDbContext context,
@@ -478,7 +388,7 @@ namespace BrokenHelper.PacketHandlers
             }
         }
 
-        private record EquipmentInfo(string Name, int? Quality, double? ParsedVal,
-            int? OrnamentField, string? OrbCode, string? OrbName, int? OrbPrice);
     }
+
+
 }
