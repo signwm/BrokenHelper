@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using BrokenHelper.Helpers;
 using System.Windows.Threading;
 
 namespace BrokenHelper
@@ -25,6 +26,7 @@ namespace BrokenHelper
         private TextBlock _fightPsychoValue = null!;
         private TextBlock _fightGoldValue = null!;
         private TextBlock _fightDropValue = null!;
+        private TextBlock _fightDurationValue = null!;
         private TextBlock _instanceNameValue = null!;
         private TextBlock _instanceExpValue = null!;
         private TextBlock _instancePsychoValue = null!;
@@ -35,18 +37,48 @@ namespace BrokenHelper
         private List<DropSummaryDetailed> _fightDrops = [];
         private List<DropSummaryDetailed> _instanceDrops = [];
 
+        private DateTime? _fightStartTime;
+
         private void OnFightStarted()
         {
             Dispatcher.Invoke(() =>
             {
                 ClearFight();
                 _fightDrops.Clear();
+                _fightStartTime = DateTime.Now;
+                _fightDurationValue.Text = "0:00";
+                _fightDurationValue.Foreground = Brushes.White;
             });
         }
 
         private void OnFightSummary()
         {
             Dispatcher.Invoke(UpdateData);
+        }
+
+        private void OnFightEnded()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (_fightStartTime != null)
+                {
+                    var duration = DateTime.Now - _fightStartTime.Value;
+                    _fightDurationValue.Text = TimeHelper.FormatDuration(duration);
+                }
+                _fightStartTime = null;
+                _fightDurationValue.Foreground = Brushes.LightGreen;
+            });
+        }
+
+        private void OnInstanceStarted()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ClearInstance();
+                _instanceDrops.Clear();
+                _instanceDurationValue.Foreground = Brushes.White;
+                UpdateData();
+            });
         }
 
         public HudWindow(string playerName)
@@ -133,6 +165,8 @@ namespace BrokenHelper
 
             GameEvents.FightStarted += OnFightStarted;
             GameEvents.FightSummary += OnFightSummary;
+            GameEvents.FightEnded += OnFightEnded;
+            GameEvents.InstanceStarted += OnInstanceStarted;
 
             UpdateData();
         }
@@ -186,6 +220,7 @@ namespace BrokenHelper
             _fightPsychoValue = AddRow(grid, "Psycho:");
             _fightGoldValue = AddRow(grid, "Gold:");
             _fightDropValue = AddRow(grid, "Przedmioty:");
+            _fightDurationValue = AddRow(grid, "Czas:");
         }
 
         private void AddInstanceRows(Grid grid)
@@ -232,6 +267,12 @@ namespace BrokenHelper
                 _fightDropValue.Text = FormatNumber(fight.DropValue);
                 _fightDrops = StatsService.GetLastFightDropDetails(player);
             }
+
+            if (_fightStartTime != null)
+            {
+                var duration = DateTime.Now - _fightStartTime.Value;
+                _fightDurationValue.Text = TimeHelper.FormatDuration(duration);
+            }
             UpdateTooltip(_fightDropValue, _fightDrops);
 
             var instance = StatsService.GetCurrentOrLastInstance(player);
@@ -263,6 +304,9 @@ namespace BrokenHelper
             _fightPsychoValue.Text = "-";
             _fightGoldValue.Text = "-";
             _fightDropValue.Text = "-";
+            _fightDurationValue.Text = "-";
+            _fightDurationValue.Foreground = Brushes.White;
+            _fightStartTime = null;
         }
 
         private void ClearInstance()
@@ -273,6 +317,7 @@ namespace BrokenHelper
             _instanceGoldValue.Text = "-";
             _instanceDropValue.Text = "-";
             _instanceDurationValue.Text = "-";
+            _instanceDurationValue.Foreground = Brushes.White;
         }
 
         private void UpdateTooltip(TextBlock block, List<DropSummaryDetailed> drops)
@@ -390,6 +435,8 @@ namespace BrokenHelper
             _logsWindow?.Close();
             GameEvents.FightStarted -= OnFightStarted;
             GameEvents.FightSummary -= OnFightSummary;
+            GameEvents.FightEnded -= OnFightEnded;
+            GameEvents.InstanceStarted -= OnInstanceStarted;
             base.OnClosed(e);
         }
     }

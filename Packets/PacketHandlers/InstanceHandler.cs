@@ -62,6 +62,8 @@ namespace BrokenHelper.PacketHandlers
             _pendingClose = false;
             _currentGroupProgress = PacketListener.BossGroups.Select(g => new HashSet<string>()).ToArray();
             _currentMultiKillCounts.Clear();
+
+            GameEvents.OnInstanceStarted();
         }
 
         public void CheckInstanceCompletion(IEnumerable<string> opponentNames, DateTime fightTime, Models.GameDbContext context)
