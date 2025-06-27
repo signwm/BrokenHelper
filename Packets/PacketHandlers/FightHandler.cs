@@ -248,7 +248,7 @@ namespace BrokenHelper.PacketHandlers
             {
                 item = new Models.ItemEntity
                 {
-                    Type = type,
+                    DropType = type,
                     Name = name,
                     Value = value,
                     Rank = rank,
@@ -258,7 +258,7 @@ namespace BrokenHelper.PacketHandlers
             }
             else
             {
-                item.Type = type;
+                item.DropType = type;
                 if (value.HasValue) item.Value = value;
                 if (rank.HasValue) item.Rank = rank;
                 if (code != null) item.Code = code;

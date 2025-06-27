@@ -48,7 +48,7 @@ namespace BrokenHelper.PacketHandlers
                             Name = name,
                             Code = code,
                             Value = value,
-                            Type = Models.DropType.Drif
+                            DropType = Models.DropType.Drif
                         };
                         context.Items.Add(item);
                     }
@@ -56,7 +56,7 @@ namespace BrokenHelper.PacketHandlers
                     {
                         item.Code = code;
                         item.Value = value;
-                        item.Type = Models.DropType.Drif;
+                        item.DropType = Models.DropType.Drif;
                     }
                 }
                 else
@@ -76,14 +76,14 @@ namespace BrokenHelper.PacketHandlers
                         {
                             Name = name,
                             Value = value,
-                            Type = Models.DropType.Item
+                            DropType = Models.DropType.Item
                         };
                         context.Items.Add(item);
                     }
                     else
                     {
                         item.Value = value;
-                        item.Type = Models.DropType.Item;
+                        item.DropType = Models.DropType.Item;
                     }
                 }
             }

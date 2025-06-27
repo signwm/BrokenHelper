@@ -204,7 +204,7 @@ namespace BrokenHelper
                 .Select(d =>
                 {
                     int unitPrice = d.Quantity == 0 ? 0 : GetDropValue(d) / d.Quantity;
-                    string type = d.Item.Type switch
+                    string type = d.Item.DropType switch
                     {
                         DropType.Rar or DropType.Syng or DropType.Trash => "Equipment",
                         DropType.Item => "Item",
