@@ -10,19 +10,16 @@ namespace BrokenHelper
         int Difficulty, string Duration, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, int FightCount);
 
-    public record FightInfo(int Id, DateTime StartTime, DateTime EndTime, List<string> Players,
+    public record FightInfo(int Id, DateTime StartTime, DateTime EndTime,
         List<string> Opponents, int EarnedExp, int EarnedPsycho,
         int FoundGold, int DropValue, string Drops, int? InstanceId,
         string InstanceName)
     {
-        public string PlayersText => string.Join(", ", Players);
         public string OpponentsText => string.Join(", ", Opponents);
     }
 
-    public record DropSummary(string Name, int Quantity, int Value);
-
     public record FightsSummary(int EarnedExp, int EarnedPsycho, int FoundGold,
-        int DropValue, int FightCount, List<DropSummary> Drops);
+        int DropValue, int FightCount);
 
     public static class StatsService
     {
@@ -99,7 +96,6 @@ namespace BrokenHelper
             var result = new List<FightInfo>();
             foreach (var fight in fights)
             {
-                var players = new List<string> { fight.PlayerName };
                 var opponents = fight.Opponents
                     .GroupBy(o => o.OpponentType.Name)
                     .Select(g => g.Count() > 1 ? $"{g.Key} ({g.Sum(o => o.Quantity)})" : g.Key)
@@ -117,7 +113,6 @@ namespace BrokenHelper
                     fight.Id,
                     fight.StartTime,
                     fight.EndTime ?? fight.StartTime,
-                    players,
                     opponents,
                     fight.Exp,
                     fight.Psycho,
@@ -145,7 +140,6 @@ namespace BrokenHelper
             var result = new List<FightInfo>();
             foreach (var fight in instance)
             {
-                var players = new List<string> { fight.PlayerName };
                 var opponents = fight.Opponents
                     .GroupBy(o => o.OpponentType.Name)
                     .Select(g => g.Count() > 1 ? $"{g.Key} ({g.Sum(o => o.Quantity)})" : g.Key)
@@ -163,7 +157,6 @@ namespace BrokenHelper
                     fight.Id,
                     fight.StartTime,
                     fight.EndTime ?? fight.StartTime,
-                    players,
                     opponents,
                     fight.Exp,
                     fight.Psycho,
@@ -191,17 +184,10 @@ namespace BrokenHelper
             int gold = fights.Sum(f => f.Gold);
             int fightCount = fights.Count;
 
-            var dropsGrouped = fights.SelectMany(f => f.Drops)
-                .GroupBy(d => d.Item.Name)
-                .Select(g => new DropSummary(
-                    g.Key,
-                    g.Sum(d => d.Quantity),
-                    g.Sum(GetDropValue)))
-                .ToList();
+            int dropValue = fights.SelectMany(f => f.Drops)
+                .Sum(GetDropValue);
 
-            int dropValue = dropsGrouped.Sum(d => d.Value);
-
-            return new FightsSummary(exp, psycho, gold, dropValue, fightCount, dropsGrouped);
+            return new FightsSummary(exp, psycho, gold, dropValue, fightCount);
         }
 
         public static List<DropSummaryDetailed> GetDropDetails(string playerName, IEnumerable<int> fightIds)
