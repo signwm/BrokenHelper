@@ -252,16 +252,21 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var instanceQuery = context.Instances
+            var query = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
-                .Where(i => i.Fights.Any(f => f.PlayerName == playerName))
                 .OrderByDescending(i => i.StartTime);
 
-            var instance = instanceQuery.FirstOrDefault(i => i.EndTime == null) ?? instanceQuery.FirstOrDefault();
+            var instance = query.FirstOrDefault(i => i.EndTime == null)
+                ?? query.FirstOrDefault(i => i.Fights.Any(f => f.PlayerName == playerName));
+
             if (instance == null)
                 return [];
 
-            var fightIds = instance.Fights.Where(f => f.PlayerName == playerName).Select(f => f.Id).ToList();
+            var fightIds = instance.Fights.Where(f => f.PlayerName == playerName)
+                .Select(f => f.Id).ToList();
+            if (fightIds.Count == 0)
+                return [];
+
             return GetDropDetails(playerName, fightIds);
         }
 
@@ -287,18 +292,17 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var instancesQuery = context.Instances
+            var query = context.Instances
                 .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
-                .Where(i => i.Fights.Any(f => f.PlayerName == playerName))
                 .OrderByDescending(i => i.StartTime);
 
-            var instance = instancesQuery.FirstOrDefault(i => i.EndTime == null) ?? instancesQuery.FirstOrDefault();
+            var instance = query.FirstOrDefault(i => i.EndTime == null)
+                ?? query.FirstOrDefault(i => i.Fights.Any(f => f.PlayerName == playerName));
             if (instance == null)
                 return null;
 
             var fights = instance.Fights.Where(f => f.PlayerName == playerName).ToList();
-            if (fights.Count == 0)
-                return null;
+            // if there are no fights for the player yet, return zeros
 
             int exp = fights.Sum(f => f.Exp);
             int psycho = fights.Sum(f => f.Psycho);
