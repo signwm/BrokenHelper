@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 
 namespace BrokenHelper.PacketHandlers
 {
@@ -339,7 +340,9 @@ namespace BrokenHelper.PacketHandlers
                 {
                     var third = valueSegments[2];
                     var thirdParts = third.Split(',');
-                    if (thirdParts.Length >= 4 && double.TryParse(thirdParts[3], out var val))
+                    if (thirdParts.Length >= 4 &&
+                        double.TryParse(thirdParts[3], System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var val))
                     {
                         parsedVal = val;
                     }
