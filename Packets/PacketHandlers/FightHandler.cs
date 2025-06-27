@@ -151,6 +151,8 @@ namespace BrokenHelper.PacketHandlers
             _instanceHandler.CloseIfPending(fight.EndTime!.Value, context);
 
             _currentFightId = null;
+
+            GameEvents.OnFightEnded();
         }
 
         private static void HandleFightOpponent(string[] parts, Models.FightEntity fight, Models.GameDbContext context)
