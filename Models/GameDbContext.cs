@@ -12,6 +12,7 @@ namespace BrokenHelper.Models
         public DbSet<OpponentTypeEntity> OpponentTypes { get; set; }
         public DbSet<FightOpponentEntity> FightOpponents { get; set; }
         public DbSet<DropEntity> Drops { get; set; }
+        public DbSet<ItemEntity> Items { get; set; }
         public DbSet<DropTypeEntity> DropTypes { get; set; }
         public DbSet<ItemPriceEntity> ItemPrices { get; set; }
         public DbSet<ArtifactPriceEntity> ArtifactPrices { get; set; }
@@ -51,6 +52,10 @@ namespace BrokenHelper.Models
 
             modelBuilder.Entity<ItemPriceEntity>()
                 .HasIndex(p => p.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<ItemEntity>()
+                .HasIndex(i => i.Name)
                 .IsUnique();
 
             modelBuilder.Entity<ArtifactPriceEntity>()

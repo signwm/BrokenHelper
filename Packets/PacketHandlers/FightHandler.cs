@@ -240,16 +240,42 @@ namespace BrokenHelper.PacketHandlers
             return result.ToArray();
         }
 
+        private static Models.ItemEntity GetOrCreateItem(Models.GameDbContext context, Models.DropType type, string name, int? value, int? rank, string? code)
+        {
+            var item = context.Items.Local.FirstOrDefault(i => i.Name == name) ??
+                       context.Items.FirstOrDefault(i => i.Name == name);
+            if (item == null)
+            {
+                item = new Models.ItemEntity
+                {
+                    Type = type,
+                    Name = name,
+                    Value = value,
+                    Rank = rank,
+                    Code = code
+                };
+                context.Items.Add(item);
+            }
+            else
+            {
+                item.Type = type;
+                if (value.HasValue) item.Value = value;
+                if (rank.HasValue) item.Rank = rank;
+                if (code != null) item.Code = code;
+            }
+            return item;
+        }
+
         private static void ParseDrifs(string? value, Models.FightEntity fight, Models.GameDbContext context)
         {
             foreach (var part in SplitEntries(value))
             {
                 var name = part.Split("[-]")[0];
+                var item = GetOrCreateItem(context, Models.DropType.Drif, name, null, null, null);
                 var drop = new Models.DropEntity
                 {
                     Fight = fight,
-                    DropType = Models.DropType.Drif,
-                    Name = name
+                    Item = item
                 };
                 context.Drops.Add(drop);
             }
@@ -272,11 +298,11 @@ namespace BrokenHelper.PacketHandlers
                     qty = q;
                 }
 
+                var item = GetOrCreateItem(context, Models.DropType.Item, name, null, null, null);
                 var drop = new Models.DropEntity
                 {
                     Fight = fight,
-                    DropType = Models.DropType.Item,
-                    Name = name,
+                    Item = item,
                     Quantity = qty
                 };
                 context.Drops.Add(drop);
@@ -389,26 +415,22 @@ namespace BrokenHelper.PacketHandlers
                     valueField = (int)Math.Round(val * multiplier);
                 }
 
+                var item = GetOrCreateItem(context, type, name, valueField, quality, null);
                 var drop = new Models.DropEntity
                 {
                     Fight = fight,
-                    DropType = type,
-                    Name = name,
-                    Rank = quality,
-                    Value = valueField,
+                    Item = item,
                     OrnamentCount = ornamentField
                 };
                 context.Drops.Add(drop);
 
                 if (!string.IsNullOrEmpty(orbCode))
                 {
+                    var orbItem = GetOrCreateItem(context, Models.DropType.Orb, orbName ?? string.Empty, orbPrice, null, orbCode);
                     var orbDrop = new Models.DropEntity
                     {
                         Fight = fight,
-                        DropType = Models.DropType.Orb,
-                        Code = orbCode,
-                        Name = orbName ?? string.Empty,
-                        Value = orbPrice,
+                        Item = orbItem,
                         Quantity = 1
                     };
                     context.Drops.Add(orbDrop);
