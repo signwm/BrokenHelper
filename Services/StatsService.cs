@@ -36,7 +36,7 @@ namespace BrokenHelper
                 DropType.Item => itemPrices.TryGetValue(drop.Name, out var v) ? v : 0,
                 DropType.Drif or DropType.Orb =>
                     artifactPrices.TryGetValue(drop.Name, out var an) ? an : 0,
-                DropType.Equipment => drop.Value ?? 0,
+                DropType.Rar or DropType.Syng or DropType.Trash => drop.Value ?? 0,
                 _ => 0
             };
             return price * drop.Quantity;
@@ -244,7 +244,7 @@ namespace BrokenHelper
                     int unitPrice = d.Quantity == 0 ? 0 : GetDropValue(d, itemPrices, artifactPrices) / d.Quantity;
                     string type = d.DropType switch
                     {
-                        DropType.Equipment => "Equipment",
+                        DropType.Rar or DropType.Syng or DropType.Trash => "Equipment",
                         DropType.Item => "Item",
                         DropType.Drif or DropType.Orb => "Artifact",
                         _ => "Item"
