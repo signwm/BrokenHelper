@@ -38,6 +38,7 @@ namespace BrokenHelper
         private List<DropSummaryDetailed> _instanceDrops = [];
 
         private DateTime? _fightStartTime;
+        private bool _fightSummaryReceived;
 
         private void OnFightStarted()
         {
@@ -46,6 +47,7 @@ namespace BrokenHelper
                 ClearFight();
                 _fightDrops.Clear();
                 _fightStartTime = DateTime.Now;
+                _fightSummaryReceived = false;
                 _fightDurationValue.Text = "0:00";
                 _fightDurationValue.Foreground = Brushes.White;
             });
@@ -53,6 +55,7 @@ namespace BrokenHelper
 
         private void OnFightSummary()
         {
+            _fightSummaryReceived = true;
             Dispatcher.Invoke(UpdateData);
         }
 
@@ -254,9 +257,14 @@ namespace BrokenHelper
             }
 
             var fight = StatsService.GetLastFightSummary(player);
-            if (fight == null)
+            bool showStats = _fightSummaryReceived || _fightStartTime == null;
+
+            if (!showStats || fight == null)
             {
-                ClearFight();
+                _fightExpValue.Text = "-";
+                _fightPsychoValue.Text = "-";
+                _fightGoldValue.Text = "-";
+                _fightDropValue.Text = "-";
                 _fightDrops.Clear();
             }
             else
