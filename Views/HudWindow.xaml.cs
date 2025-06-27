@@ -22,6 +22,9 @@ namespace BrokenHelper
         private LogsWindow? _logsWindow;
         private readonly MenuItem _listenMenuItem;
 
+        private Grid _fightPanel = null!;
+        private Grid _instancePanel = null!;
+
         private TextBlock _fightExpValue = null!;
         private TextBlock _fightPsychoValue = null!;
         private TextBlock _fightGoldValue = null!;
@@ -152,15 +155,15 @@ namespace BrokenHelper
             // start listener by default
             ToggleListener();
 
-            var fightPanel = CreateHudTable();
-            var instancePanel = CreateHudTable();
-            fightPanel.Margin = new Thickness(10, 0, 10, 5);
-            instancePanel.Margin = new Thickness(10, 5, 10, 0);
-            container.Children.Add(fightPanel);
-            container.Children.Add(instancePanel);
+            _fightPanel = CreateHudTable();
+            _instancePanel = CreateHudTable();
+            _fightPanel.Margin = new Thickness(10, 0, 10, 5);
+            _instancePanel.Margin = new Thickness(10, 5, 10, 0);
+            container.Children.Add(_fightPanel);
+            container.Children.Add(_instancePanel);
 
-            AddFightRows(fightPanel);
-            AddInstanceRows(instancePanel);
+            AddFightRows(_fightPanel);
+            AddInstanceRows(_instancePanel);
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (_, _) => UpdateData();
@@ -281,7 +284,7 @@ namespace BrokenHelper
                 var duration = DateTime.Now - _fightStartTime.Value;
                 _fightDurationValue.Text = TimeHelper.FormatDuration(duration);
             }
-            UpdateTooltip(_fightDropValue, _fightDrops);
+            UpdateTooltip(_fightPanel, _fightDrops);
 
             var instance = StatsService.GetCurrentOrLastInstance(player);
             if (instance == null)
@@ -303,7 +306,7 @@ namespace BrokenHelper
                 bool finished = lastFinished != null && lastFinished.Id == instance.Id;
                 _instanceDurationValue.Foreground = finished ? Brushes.LightGreen : Brushes.White;
             }
-            UpdateTooltip(_instanceDropValue, _instanceDrops);
+            UpdateTooltip(_instancePanel, _instanceDrops);
         }
 
         private void ClearFight()
@@ -328,11 +331,11 @@ namespace BrokenHelper
             _instanceDurationValue.Foreground = Brushes.White;
         }
 
-        private void UpdateTooltip(TextBlock block, List<DropSummaryDetailed> drops)
+        private void UpdateTooltip(FrameworkElement element, List<DropSummaryDetailed> drops)
         {
             if (drops.Count == 0)
             {
-                block.ToolTip = null;
+                element.ToolTip = null;
                 return;
             }
 
@@ -355,7 +358,7 @@ namespace BrokenHelper
                 Foreground = Brushes.White
             };
 
-            block.ToolTip = new ToolTip
+            element.ToolTip = new ToolTip
             {
                 BorderThickness = new Thickness(0),
                 Background = Brushes.Black,
