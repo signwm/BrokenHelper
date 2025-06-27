@@ -321,124 +321,164 @@ namespace BrokenHelper.PacketHandlers
                 if (string.IsNullOrWhiteSpace(part))
                     continue;
 
-                var segments = part.Split("[-]");
-                if (segments.Length < 4)
+                var info = ParseEquipmentPart(part, context);
+                if (string.IsNullOrEmpty(info.Name))
                     continue;
 
-                var name = segments[0];
-                var quality = int.TryParse(segments[1], out var q) ? q : (int?)null;
+                var type = GetDropType(info.Name, special);
+                var valueField = CalculateEquipmentValue(context, type, info, multiplier);
 
-                var afterThird = segments[3];
-                var valueSegments = afterThird.Split('$');
-                int? valueField = null;
-                double? parsedVal = null;
-                int? ornamentField = null;
-                string? orbCode = null;
-                string? orbName = null;
-                int? orbPrice = null;
-                if (valueSegments.Length >= 3)
-                {
-                    var third = valueSegments[2];
-                    var thirdParts = third.Split(',');
-                    if (thirdParts.Length >= 4 &&
-                        double.TryParse(thirdParts[3], System.Globalization.NumberStyles.Float,
-                            System.Globalization.CultureInfo.InvariantCulture, out var val))
-                    {
-                        parsedVal = val;
-                    }
-                    if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
-                    {
-                        ornamentField = orn;
-                    }
-
-                    if (valueSegments.Length >= 17)
-                    {
-                        var orbSegment = valueSegments[16];
-                        var orbParts = orbSegment.Split(',');
-                        if (orbParts.Length >= 7)
-                        {
-                            orbCode = $"{orbParts[0]}_{orbParts[5]}_{orbParts[6]}";
-                            var artifact = context.Items.FirstOrDefault(i => i.Code == orbCode);
-                            if (artifact != null)
-                            {
-                                orbName = artifact.Name;
-                                orbPrice = artifact.Value ?? 0;
-                            }
-                        }
-                    }
-                }
-
-                var type = special
-                    ? (name.Contains('"') ? Models.DropType.Rar : Models.DropType.Syng)
-                    : Models.DropType.Trash;
-
-                if (type == Models.DropType.Rar || type == Models.DropType.Syng)
-                {
-                    var shardPrice = context.Items.FirstOrDefault(i => i.Name == "Odłamek")?.Value ?? 0;
-                    var essencePrice = context.Items.FirstOrDefault(i => i.Name == "Esencja")?.Value ?? 0;
-
-                    if (type == Models.DropType.Rar)
-                    {
-                        if (ornamentField.HasValue && quality.HasValue &&
-                            ornamentField.Value >= 0 && ornamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
-                            quality.Value >= 7 && quality.Value <= PacketListener.QuoteItemCoefficients.GetLength(1))
-                        {
-                            int coef = PacketListener.QuoteItemCoefficients[ornamentField.Value, quality.Value - 1];
-                            var basePrice = quality.Value >= 7 ? shardPrice : essencePrice;
-                            valueField = coef * basePrice;
-                        }
-                    }
-                    else if (name.Contains("Smoków"))
-                    {
-                        valueField = 12 * shardPrice;
-                    }
-                    else if (name.Contains("Vorlingów") || name.Contains("Lodu"))
-                    {
-                        valueField = 30 * shardPrice;
-                    }
-                    else if (name.Contains("Władców"))
-                    {
-                        valueField = 150 * shardPrice;
-                    }
-                    else if (name.Contains("Dawnych Orków"))
-                    {
-                        valueField = 60 * shardPrice;
-                    }
-                }
-
-                if (valueField == null && parsedVal.HasValue)
-                {
-                    var val = type switch
-                    {
-                        Models.DropType.Trash => 0.025,
-                        Models.DropType.Syng => 0.3,
-                        _ => parsedVal.Value
-                    };
-
-                    valueField = (int)Math.Round(val * multiplier);
-                }
-
-                var item = GetOrCreateItem(context, type, name, valueField, quality, null);
-                var drop = new Models.DropEntity
-                {
-                    Fight = fight,
-                    Item = item,
-                    OrnamentCount = ornamentField
-                };
-                context.Drops.Add(drop);
-
-                if (!string.IsNullOrEmpty(orbCode))
-                {
-                    var orbItem = GetOrCreateItem(context, Models.DropType.Orb, orbName ?? string.Empty, orbPrice, null, orbCode);
-                    var orbDrop = new Models.DropEntity
-                    {
-                        Fight = fight,
-                        Item = orbItem,
-                        Quantity = 1
-                    };
-                    context.Drops.Add(orbDrop);
-                }
+                AddEquipmentDrop(context, fight, type, valueField, info);
             }
         }
+
+        private static EquipmentInfo ParseEquipmentPart(string part, Models.GameDbContext context)
+        {
+            var segments = part.Split("[-]");
+            if (segments.Length < 4)
+                return new EquipmentInfo(string.Empty, null, null, null, null, null, null);
+
+            var name = segments[0];
+            var quality = int.TryParse(segments[1], out var q) ? q : (int?)null;
+
+            var valueSegments = segments[3].Split('$');
+
+            double? parsedVal = null;
+            int? ornamentField = null;
+            string? orbCode = null;
+            string? orbName = null;
+            int? orbPrice = null;
+
+            if (valueSegments.Length >= 3)
+            {
+                var third = valueSegments[2];
+                var thirdParts = third.Split(',');
+                if (thirdParts.Length >= 4 &&
+                    double.TryParse(thirdParts[3], System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out var val))
+                {
+                    parsedVal = val;
+                }
+
+                if (thirdParts.Length >= 19 && int.TryParse(thirdParts[18], out var orn))
+                {
+                    ornamentField = orn;
+                }
+
+                if (valueSegments.Length >= 17)
+                {
+                    var orbSegment = valueSegments[16];
+                    var orbParts = orbSegment.Split(',');
+                    if (orbParts.Length >= 7)
+                    {
+                        orbCode = $"{orbParts[0]}_{orbParts[5]}_{orbParts[6]}";
+                        var artifact = context.Items.FirstOrDefault(i => i.Code == orbCode);
+                        if (artifact != null)
+                        {
+                            orbName = artifact.Name;
+                            orbPrice = artifact.Value ?? 0;
+                        }
+                    }
+                }
+            }
+
+            return new EquipmentInfo(name, quality, parsedVal, ornamentField, orbCode, orbName, orbPrice);
+        }
+
+        private static Models.DropType GetDropType(string name, bool special)
+        {
+            return special
+                ? (name.Contains('"') ? Models.DropType.Rar : Models.DropType.Syng)
+                : Models.DropType.Trash;
+        }
+
+        private static int? CalculateEquipmentValue(
+            Models.GameDbContext context,
+            Models.DropType type,
+            EquipmentInfo info,
+            double multiplier)
+        {
+            int? valueField = null;
+
+            if (type == Models.DropType.Rar || type == Models.DropType.Syng)
+            {
+                var shardPrice = context.Items.FirstOrDefault(i => i.Name == "Odłamek")?.Value ?? 0;
+                var essencePrice = context.Items.FirstOrDefault(i => i.Name == "Esencja")?.Value ?? 0;
+
+                if (type == Models.DropType.Rar)
+                {
+                    if (info.OrnamentField.HasValue && info.Quality.HasValue &&
+                        info.OrnamentField.Value >= 0 && info.OrnamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
+                        info.Quality.Value >= 7 && info.Quality.Value <= PacketListener.QuoteItemCoefficients.GetLength(1))
+                    {
+                        int coef = PacketListener.QuoteItemCoefficients[info.OrnamentField.Value, info.Quality.Value - 1];
+                        var basePrice = info.Quality.Value >= 7 ? shardPrice : essencePrice;
+                        valueField = coef * basePrice;
+                    }
+                }
+                else if (info.Name.Contains("Smoków"))
+                {
+                    valueField = 12 * shardPrice;
+                }
+                else if (info.Name.Contains("Vorlingów") || info.Name.Contains("Lodu"))
+                {
+                    valueField = 30 * shardPrice;
+                }
+                else if (info.Name.Contains("Władców"))
+                {
+                    valueField = 150 * shardPrice;
+                }
+                else if (info.Name.Contains("Dawnych Orków"))
+                {
+                    valueField = 60 * shardPrice;
+                }
+            }
+
+            if (valueField == null && info.ParsedVal.HasValue)
+            {
+                var val = type switch
+                {
+                    Models.DropType.Trash => 0.025,
+                    Models.DropType.Syng => 0.3,
+                    _ => info.ParsedVal.Value
+                };
+
+                valueField = (int)Math.Round(val * multiplier);
+            }
+
+            return valueField;
+        }
+
+        private static void AddEquipmentDrop(
+            Models.GameDbContext context,
+            Models.FightEntity fight,
+            Models.DropType type,
+            int? valueField,
+            EquipmentInfo info)
+        {
+            var item = GetOrCreateItem(context, type, info.Name, valueField, info.Quality, null);
+            var drop = new Models.DropEntity
+            {
+                Fight = fight,
+                Item = item,
+                OrnamentCount = info.OrnamentField
+            };
+            context.Drops.Add(drop);
+
+            if (!string.IsNullOrEmpty(info.OrbCode))
+            {
+                var orbItem = GetOrCreateItem(context, Models.DropType.Orb, info.OrbName ?? string.Empty, info.OrbPrice, null, info.OrbCode);
+                var orbDrop = new Models.DropEntity
+                {
+                    Fight = fight,
+                    Item = orbItem,
+                    Quantity = 1
+                };
+                context.Drops.Add(orbDrop);
+            }
+        }
+
+        private record EquipmentInfo(string Name, int? Quality, double? ParsedVal,
+            int? OrnamentField, string? OrbCode, string? OrbName, int? OrbPrice);
     }
 }
