@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace BrokenHelper.Models
 {
@@ -10,6 +12,7 @@ namespace BrokenHelper.Models
         public DbSet<OpponentTypeEntity> OpponentTypes { get; set; }
         public DbSet<FightOpponentEntity> FightOpponents { get; set; }
         public DbSet<DropEntity> Drops { get; set; }
+        public DbSet<DropTypeEntity> DropTypes { get; set; }
         public DbSet<ItemPriceEntity> ItemPrices { get; set; }
         public DbSet<ArtifactPriceEntity> ArtifactPrices { get; set; }
 
@@ -56,6 +59,19 @@ namespace BrokenHelper.Models
             modelBuilder.Entity<ArtifactPriceEntity>()
                 .HasIndex(p => p.Name)
                 .IsUnique();
+
+            modelBuilder.Entity<DropTypeEntity>()
+                .HasIndex(t => t.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<DropTypeEntity>().HasData(
+                Enum.GetValues<DropType>()
+                    .Select(v => new DropTypeEntity
+                    {
+                        Id = (int)v,
+                        Name = v.ToString()
+                    })
+                    .ToArray());
 
         }
     }
