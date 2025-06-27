@@ -355,11 +355,11 @@ namespace BrokenHelper.PacketHandlers
                         if (orbParts.Length >= 7)
                         {
                             orbCode = $"{orbParts[0]}_{orbParts[5]}_{orbParts[6]}";
-                            var artifact = context.ArtifactPrices.FirstOrDefault(a => a.Code == orbCode);
+                            var artifact = context.Items.FirstOrDefault(i => i.Code == orbCode);
                             if (artifact != null)
                             {
                                 orbName = artifact.Name;
-                                orbPrice = artifact.Value;
+                                orbPrice = artifact.Value ?? 0;
                             }
                         }
                     }
@@ -371,8 +371,8 @@ namespace BrokenHelper.PacketHandlers
 
                 if (type == Models.DropType.Rar || type == Models.DropType.Syng)
                 {
-                    var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
-                    var essencePrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Esencja")?.Value ?? 0;
+                    var shardPrice = context.Items.FirstOrDefault(i => i.Name == "Odłamek")?.Value ?? 0;
+                    var essencePrice = context.Items.FirstOrDefault(i => i.Name == "Esencja")?.Value ?? 0;
 
                     if (type == Models.DropType.Rar)
                     {
