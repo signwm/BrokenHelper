@@ -14,8 +14,6 @@ namespace BrokenHelper.Models
         public DbSet<DropEntity> Drops { get; set; }
         public DbSet<ItemEntity> Items { get; set; }
         public DbSet<DropTypeEntity> DropTypes { get; set; }
-        public DbSet<ItemPriceEntity> ItemPrices { get; set; }
-        public DbSet<ArtifactPriceEntity> ArtifactPrices { get; set; }
 
         public GameDbContext()
         {
@@ -50,19 +48,8 @@ namespace BrokenHelper.Models
                 .HasIndex(i => i.PublicId)
                 .IsUnique();
 
-            modelBuilder.Entity<ItemPriceEntity>()
-                .HasIndex(p => p.Name)
-                .IsUnique();
-
             modelBuilder.Entity<ItemEntity>()
                 .HasIndex(i => i.Name)
-                .IsUnique();
-
-            modelBuilder.Entity<ArtifactPriceEntity>()
-                .HasIndex(p => p.Code)
-                .IsUnique();
-            modelBuilder.Entity<ArtifactPriceEntity>()
-                .HasIndex(p => p.Name)
                 .IsUnique();
 
             modelBuilder.Entity<DropTypeEntity>()
