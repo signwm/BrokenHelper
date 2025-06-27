@@ -338,15 +338,15 @@ namespace BrokenHelper.PacketHandlers
                 }
 
                 var type = special
-                    ? (name.Contains('"') ? Models.EquipmentType.Rar : Models.EquipmentType.Syng)
-                    : Models.EquipmentType.Trash;
+                    ? (name.Contains('"') ? Models.DropType.Rar : Models.DropType.Syng)
+                    : Models.DropType.Trash;
 
-                if (type == Models.EquipmentType.Rar || type == Models.EquipmentType.Syng)
+                if (type == Models.DropType.Rar || type == Models.DropType.Syng)
                 {
                     var shardPrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Odłamek")?.Value ?? 0;
                     var essencePrice = context.ItemPrices.FirstOrDefault(p => p.Name == "Esencja")?.Value ?? 0;
 
-                    if (type == Models.EquipmentType.Rar)
+                    if (type == Models.DropType.Rar)
                     {
                         if (ornamentField.HasValue && quality.HasValue &&
                             ornamentField.Value >= 0 && ornamentField.Value < PacketListener.QuoteItemCoefficients.GetLength(0) &&
@@ -379,8 +379,8 @@ namespace BrokenHelper.PacketHandlers
                 {
                     var val = type switch
                     {
-                        Models.EquipmentType.Trash => 0.025,
-                        Models.EquipmentType.Syng => 0.3,
+                        Models.DropType.Trash => 0.025,
+                        Models.DropType.Syng => 0.3,
                         _ => parsedVal.Value
                     };
 
@@ -390,7 +390,7 @@ namespace BrokenHelper.PacketHandlers
                 var drop = new Models.DropEntity
                 {
                     Fight = fight,
-                    DropType = Models.DropType.Equipment,
+                    DropType = type,
                     Name = name,
                     Rank = quality,
                     Value = valueField,
