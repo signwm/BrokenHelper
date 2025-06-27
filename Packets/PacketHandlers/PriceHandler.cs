@@ -60,6 +60,26 @@ namespace BrokenHelper.PacketHandlers
                         existing.Value = value;
                         existing.Name = name;
                     }
+
+                    var item = context.Items.Local.FirstOrDefault(i => i.Name == name) ??
+                               context.Items.FirstOrDefault(i => i.Name == name);
+                    if (item == null)
+                    {
+                        item = new Models.ItemEntity
+                        {
+                            Name = name,
+                            Code = code,
+                            Value = value,
+                            Type = Models.DropType.Drif
+                        };
+                        context.Items.Add(item);
+                    }
+                    else
+                    {
+                        item.Code = code;
+                        item.Value = value;
+                        item.Type = Models.DropType.Drif;
+                    }
                 }
                 else
                 {
@@ -87,6 +107,24 @@ namespace BrokenHelper.PacketHandlers
                     else
                     {
                         existing.Value = value;
+                    }
+
+                    var item = context.Items.Local.FirstOrDefault(i => i.Name == name) ??
+                               context.Items.FirstOrDefault(i => i.Name == name);
+                    if (item == null)
+                    {
+                        item = new Models.ItemEntity
+                        {
+                            Name = name,
+                            Value = value,
+                            Type = Models.DropType.Item
+                        };
+                        context.Items.Add(item);
+                    }
+                    else
+                    {
+                        item.Value = value;
+                        item.Type = Models.DropType.Item;
                     }
                 }
             }

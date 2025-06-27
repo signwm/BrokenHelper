@@ -7,18 +7,10 @@ namespace BrokenHelper.Models
         public int FightId { get; set; }
         public FightEntity Fight { get; set; } = null!;
 
-        public DropType DropType { get; set; }
+        public int ItemId { get; set; }
+        public ItemEntity Item { get; set; } = null!;
 
-        public string Name { get; set; } = string.Empty;
-
-        public int? Value { get; set; }
-
-        // Equipment-specific
-        public int? Rank { get; set; }
         public int? OrnamentCount { get; set; }
-
-        // Orb/Drif-specific
-        public string? Code { get; set; }
 
         public int Quantity { get; set; } = 1;
     }

@@ -27,18 +27,9 @@ namespace BrokenHelper
     public static class StatsService
     {
         public static string LastInstanceName { get; set; } = string.Empty;
-        private static int GetDropValue(DropEntity drop,
-            IReadOnlyDictionary<string, int> itemPrices,
-            IReadOnlyDictionary<string, int> artifactPrices)
+        private static int GetDropValue(DropEntity drop)
         {
-            int price = drop.DropType switch
-            {
-                DropType.Item => itemPrices.TryGetValue(drop.Name, out var v) ? v : 0,
-                DropType.Drif or DropType.Orb =>
-                    artifactPrices.TryGetValue(drop.Name, out var an) ? an : 0,
-                DropType.Rar or DropType.Syng or DropType.Trash => drop.Value ?? 0,
-                _ => 0
-            };
+            int price = drop.Item.Value ?? 0;
             return price * drop.Quantity;
         }
 
@@ -47,11 +38,8 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var instances = context.Instances
-                .Include(i => i.Fights).ThenInclude(f => f.Drops)
+                .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(i => i.StartTime >= from && i.StartTime <= to)
                 .OrderByDescending(i => i.StartTime)
                 .ToList();
@@ -65,7 +53,7 @@ namespace BrokenHelper
                 int psycho = fights.Sum(f => f.Psycho);
                 int gold = fights.Sum(f => f.Gold);
                 int dropsValue = fights.SelectMany(f => f.Drops)
-                    .Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+                    .Sum(GetDropValue);
 
                 string duration = instance.EndTime.HasValue
                     ? (instance.EndTime.Value - instance.StartTime).ToString(@"mm\:ss")
@@ -93,12 +81,9 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var fightsQuery = context.Fights
                 .Include(f => f.Instance)
-                .Include(f => f.Drops)
+                .Include(f => f.Drops).ThenInclude(d => d.Item)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
                 .Where(f => f.PlayerName == playerName && f.StartTime >= from && f.EndTime <= to);
 
@@ -120,10 +105,10 @@ namespace BrokenHelper
                     .Select(g => g.Count() > 1 ? $"{g.Key} ({g.Sum(o => o.Quantity)})" : g.Key)
                     .ToList();
 
-                int dropsValue = fight.Drops.Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+                int dropsValue = fight.Drops.Sum(GetDropValue);
                 string dropsText = string.Join(", ", fight.Drops.Select(d =>
                 {
-                    var name = d.Name;
+                    var name = d.Item.Name;
                     if (d.Quantity > 1) name += $" ({d.Quantity})";
                     return name;
                 }));
@@ -151,14 +136,11 @@ namespace BrokenHelper
             using var context = new GameDbContext();
             var instance = context.Fights
                 .Include(f => f.Instance)
-                .Include(f => f.Drops)
+                .Include(f => f.Drops).ThenInclude(d => d.Item)
                 .Include(f => f.Opponents).ThenInclude(o => o.OpponentType)
                 .Where(f => f.InstanceId == instanceId && f.PlayerName == playerName)
                 .OrderByDescending(f => f.StartTime)
                 .ToList();
-
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
 
             var result = new List<FightInfo>();
             foreach (var fight in instance)
@@ -169,10 +151,10 @@ namespace BrokenHelper
                     .Select(g => g.Count() > 1 ? $"{g.Key} ({g.Sum(o => o.Quantity)})" : g.Key)
                     .ToList();
 
-                int dropsValue = fight.Drops.Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+                int dropsValue = fight.Drops.Sum(GetDropValue);
                 string dropsText = string.Join(", ", fight.Drops.Select(d =>
                 {
-                    var name = d.Name;
+                    var name = d.Item.Name;
                     if (d.Quantity > 1) name += $" ({d.Quantity})";
                     return name;
                 }));
@@ -199,11 +181,8 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var fights = context.Fights
-                .Include(f => f.Drops)
+                .Include(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(f => fightIds.Contains(f.Id) && f.PlayerName == playerName)
                 .ToList();
 
@@ -213,11 +192,11 @@ namespace BrokenHelper
             int fightCount = fights.Count;
 
             var dropsGrouped = fights.SelectMany(f => f.Drops)
-                .GroupBy(d => d.Name)
+                .GroupBy(d => d.Item.Name)
                 .Select(g => new DropSummary(
                     g.Key,
                     g.Sum(d => d.Quantity),
-                    g.Sum(d => GetDropValue(d, itemPrices, artifactPrices))))
+                    g.Sum(GetDropValue)))
                 .ToList();
 
             int dropValue = dropsGrouped.Sum(d => d.Value);
@@ -229,11 +208,8 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var drops = context.Fights
-                .Include(f => f.Drops)
+                .Include(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(f => fightIds.Contains(f.Id) && f.PlayerName == playerName)
                 .SelectMany(f => f.Drops)
                 .ToList();
@@ -241,8 +217,8 @@ namespace BrokenHelper
             var result = drops
                 .Select(d =>
                 {
-                    int unitPrice = d.Quantity == 0 ? 0 : GetDropValue(d, itemPrices, artifactPrices) / d.Quantity;
-                    string type = d.DropType switch
+                    int unitPrice = d.Quantity == 0 ? 0 : GetDropValue(d) / d.Quantity;
+                    string type = d.Item.Type switch
                     {
                         DropType.Rar or DropType.Syng or DropType.Trash => "Equipment",
                         DropType.Item => "Item",
@@ -252,7 +228,7 @@ namespace BrokenHelper
 
                     return new DropSummaryDetailed
                     {
-                        Name = AppendOrnamentLabel(d.Name, d.OrnamentCount),
+                        Name = AppendOrnamentLabel(d.Item.Name, d.OrnamentCount),
                         Type = type,
                         Quantity = d.Quantity,
                         UnitPrice = unitPrice
@@ -291,7 +267,7 @@ namespace BrokenHelper
             using var context = new GameDbContext();
 
             var instanceQuery = context.Instances
-                .Include(i => i.Fights).ThenInclude(f => f.Drops)
+                .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(i => i.Fights.Any(f => f.PlayerName == playerName))
                 .OrderByDescending(i => i.StartTime);
 
@@ -325,11 +301,8 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var instancesQuery = context.Instances
-                .Include(i => i.Fights).ThenInclude(f => f.Drops)
+                .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(i => i.Fights.Any(f => f.PlayerName == playerName))
                 .OrderByDescending(i => i.StartTime);
 
@@ -345,7 +318,7 @@ namespace BrokenHelper
             int psycho = fights.Sum(f => f.Psycho);
             int gold = fights.Sum(f => f.Gold);
             int dropsValue = fights.SelectMany(f => f.Drops)
-                .Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+                .Sum(GetDropValue);
 
             string duration = instance.EndTime.HasValue
                 ? (instance.EndTime.Value - instance.StartTime).ToString(@"mm\:ss")
@@ -369,11 +342,8 @@ namespace BrokenHelper
         {
             using var context = new GameDbContext();
 
-            var itemPrices = context.ItemPrices.ToDictionary(p => p.Name, p => p.Value);
-            var artifactPrices = context.ArtifactPrices.ToDictionary(p => p.Name, p => p.Value);
-
             var instance = context.Instances
-                .Include(i => i.Fights).ThenInclude(f => f.Drops)
+                .Include(i => i.Fights).ThenInclude(f => f.Drops).ThenInclude(d => d.Item)
                 .Where(i => i.EndTime != null && i.Fights.Any(f => f.PlayerName == playerName))
                 .OrderByDescending(i => i.EndTime)
                 .FirstOrDefault();
@@ -389,7 +359,7 @@ namespace BrokenHelper
             int psycho = fights.Sum(f => f.Psycho);
             int gold = fights.Sum(f => f.Gold);
             int dropsValue = fights.SelectMany(f => f.Drops)
-                .Sum(d => GetDropValue(d, itemPrices, artifactPrices));
+                .Sum(GetDropValue);
 
             string duration = (instance.EndTime!.Value - instance.StartTime).ToString(@"mm\:ss");
 
