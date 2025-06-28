@@ -185,7 +185,7 @@ namespace BrokenHelper.PacketHandlers
         private static string[] SplitEntries(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                return Array.Empty<string>();
+                return [];
 
             var parts = value.Split(["  "], StringSplitOptions.None);
             var result = new List<string>();

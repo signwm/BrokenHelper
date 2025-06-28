@@ -7,8 +7,8 @@ namespace BrokenHelper
 {
     internal static class PacketProcessor
     {
-        internal static readonly HashSet<string> RelevantPrefixes = new()
-        {
+        internal static readonly HashSet<string> RelevantPrefixes =
+        [
             "1;118;",
             "3;1;",
             "3;19;",
@@ -16,7 +16,7 @@ namespace BrokenHelper
             "5;5;",
             "36;0;",
             "50;0;"
-        };
+        ];
 
         public static void Process(string prefix, string rest, DateTime time,
             InstanceHandler instanceHandler, FightHandler fightHandler)

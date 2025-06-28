@@ -9,7 +9,7 @@ namespace BrokenHelper
     internal static class GameConfig
     {
         public static string[][] BossGroups { get; private set; } = [];
-        public static Dictionary<string, int> MultiKillBosses { get; private set; } = new();
+        public static Dictionary<string, int> MultiKillBosses { get; private set; } = [];
         public static HashSet<string> SingleBosses { get; private set; } = [];
         public static int[,] QuoteItemCoefficients { get; private set; } = new int[0,0];
         public static HashSet<string> DeathEndInstances { get; private set; } = [];
@@ -22,10 +22,10 @@ namespace BrokenHelper
         private class ConfigModel
         {
             public string[][] BossGroups { get; set; } = [];
-            public Dictionary<string,int> MultiKillBosses { get; set; } = new();
-            public string[] SingleBosses { get; set; } = Array.Empty<string>();
+            public Dictionary<string,int> MultiKillBosses { get; set; } = [];
+            public string[] SingleBosses { get; set; } = [];
             public int[][] QuoteItemCoefficients { get; set; } = [];
-            public string[] DeathEndInstances { get; set; } = Array.Empty<string();
+            public string[] DeathEndInstances { get; set; } = [];
         }
 
         private static void Load()
@@ -37,7 +37,7 @@ namespace BrokenHelper
             var json = File.ReadAllText(path);
             var cfg = JsonSerializer.Deserialize<ConfigModel>(json) ?? new ConfigModel();
             BossGroups = cfg.BossGroups ?? [];
-            MultiKillBosses = cfg.MultiKillBosses ?? new();
+            MultiKillBosses = cfg.MultiKillBosses ?? [];
             SingleBosses = cfg.SingleBosses != null ? new HashSet<string>(cfg.SingleBosses) : [];
             if (cfg.QuoteItemCoefficients != null && cfg.QuoteItemCoefficients.Length > 0)
             {
