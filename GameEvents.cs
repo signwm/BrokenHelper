@@ -8,6 +8,7 @@ namespace BrokenHelper
         public static event Action? FightSummary;
         public static event Action? FightEnded;
         public static event Action? InstanceStarted;
+        public static event Action? PlayerDied;
 
         internal static void OnFightStarted()
         {
@@ -27,6 +28,11 @@ namespace BrokenHelper
         internal static void OnInstanceStarted()
         {
             InstanceStarted?.Invoke();
+        }
+
+        internal static void OnPlayerDied()
+        {
+            PlayerDied?.Invoke();
         }
     }
 }

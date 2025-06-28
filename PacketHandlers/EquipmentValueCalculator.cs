@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using BrokenHelper;
 
 namespace BrokenHelper.PacketHandlers
 {
@@ -22,10 +23,10 @@ namespace BrokenHelper.PacketHandlers
             var essencePrice = context.Items.FirstOrDefault(i => i.Name == "Esencja")?.Value ?? 0;
 
             if (info.OrnamentField is int orn && info.Quality is int qual &&
-                orn >= 0 && orn < PacketListener.QuoteItemCoefficients.GetLength(0) &&
-                qual >= 7 && qual <= PacketListener.QuoteItemCoefficients.GetLength(1))
+                orn >= 0 && orn < GameConfig.QuoteItemCoefficients.GetLength(0) &&
+                qual >= 7 && qual <= GameConfig.QuoteItemCoefficients.GetLength(1))
             {
-                int coef = PacketListener.QuoteItemCoefficients[orn, qual - 1];
+                int coef = GameConfig.QuoteItemCoefficients[orn, qual - 1];
                 int basePrice = qual >= 7 ? shardPrice : essencePrice;
                 return coef * basePrice;
             }

@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrokenHelper;
 
 namespace BrokenHelper.PacketHandlers
 {
     internal class InstanceHandler
     {
         private int? _currentInstanceId;
-        private HashSet<string>[] _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
+        private HashSet<string>[] _currentGroupProgress = [.. GameConfig.BossGroups.Select(g => new HashSet<string>())];
         private readonly Dictionary<string, int> _currentMultiKillCounts = [];
         private bool _pendingClose;
 
@@ -60,7 +61,7 @@ namespace BrokenHelper.PacketHandlers
 
             _currentInstanceId = instance.Id;
             _pendingClose = false;
-            _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
+            _currentGroupProgress = [.. GameConfig.BossGroups.Select(g => new HashSet<string>())];
             _currentMultiKillCounts.Clear();
 
             GameEvents.OnInstanceStarted();
@@ -80,7 +81,7 @@ namespace BrokenHelper.PacketHandlers
 
             foreach (var name in opponentNames)
             {
-                if (PacketListener.MultiKillBosses.TryGetValue(name, out var required))
+                if (GameConfig.MultiKillBosses.TryGetValue(name, out var required))
                 {
                     _currentMultiKillCounts.TryGetValue(name, out var count);
                     count++;
@@ -93,12 +94,12 @@ namespace BrokenHelper.PacketHandlers
                 }
 
                 bool grouped = false;
-                for (int i = 0; i < PacketListener.BossGroups.Length; i++)
+                for (int i = 0; i < GameConfig.BossGroups.Length; i++)
                 {
-                    if (PacketListener.BossGroups[i].Contains(name))
+                    if (GameConfig.BossGroups[i].Contains(name))
                     {
                         _currentGroupProgress[i].Add(name);
-                        if (_currentGroupProgress[i].Count == PacketListener.BossGroups[i].Length)
+                        if (_currentGroupProgress[i].Count == GameConfig.BossGroups[i].Length)
                         {
                             _pendingClose = true;
                         }
@@ -107,7 +108,7 @@ namespace BrokenHelper.PacketHandlers
                     }
                 }
 
-                if (!grouped && PacketListener.SingleBosses.Contains(name))
+                if (!grouped && GameConfig.SingleBosses.Contains(name))
                 {
                     _pendingClose = true;
                 }
@@ -143,8 +144,21 @@ namespace BrokenHelper.PacketHandlers
 
             _currentInstanceId = null;
             _currentMultiKillCounts.Clear();
-            _currentGroupProgress = [.. PacketListener.BossGroups.Select(g => new HashSet<string>())];
+            _currentGroupProgress = [.. GameConfig.BossGroups.Select(g => new HashSet<string>())];
             _pendingClose = false;
+        }
+
+        public void HandlePlayerDeath(DateTime time)
+        {
+            if (_currentInstanceId == null)
+                return;
+
+            using var context = new Models.GameDbContext();
+            var instance = context.Instances.FirstOrDefault(i => i.Id == _currentInstanceId.Value);
+            if (instance != null && GameConfig.DeathEndInstances.Contains(instance.Name))
+            {
+                CloseCurrentInstance(time, context);
+            }
         }
     }
 }

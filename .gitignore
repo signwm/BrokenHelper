@@ -407,6 +407,7 @@ FodyWeavers.xsd
 
 # Packet data
 /data/
+!/data/config.json
 
 # Migrations
 /Migrations/
