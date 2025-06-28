@@ -389,9 +389,24 @@ namespace BrokenHelper
         {
             if (_listener == null)
             {
-                _listener = new PacketListener();
-                _listener.Start();
-                _listenMenuItem.Header = "Wy\u0142\u0105cz nas\u0142uchiwanie";
+                var listener = new PacketListener();
+                try
+                {
+                    listener.Start();
+                    _listener = listener;
+                    _listenMenuItem.Header = "Wy\u0142\u0105cz nas\u0142uchiwanie";
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Nie uda\u0142o si\u0119 rozpocz\u0105\u0107 nas\u0142uchiwania pakiet\u00f3w. Upewnij si\u0119, \u017ce aplikacja jest uruchomiona z uprawnieniami administratora.\n\n{ex.Message}",
+                        "B\u0142\u0105d",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    listener.Stop();
+                    _listener = null;
+                    _listenMenuItem.Header = "W\u0142\u0105cz nas\u0142uchiwanie";
+                }
             }
             else
             {
