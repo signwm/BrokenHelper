@@ -219,7 +219,7 @@ namespace BrokenHelper.PacketHandlers
             else
             {
                 item.DropType = type;
-                if (value.HasValue) item.Value = value;
+                if (value.HasValue && !item.LockPrice) item.Value = value;
                 if (rank.HasValue) item.Rank = rank;
                 if (code != null) item.Code = code;
             }

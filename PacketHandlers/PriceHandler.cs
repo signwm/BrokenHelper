@@ -55,7 +55,7 @@ namespace BrokenHelper.PacketHandlers
                     else
                     {
                         item.Code = code;
-                        item.Value = value;
+                        if (!item.LockPrice) item.Value = value;
                         item.DropType = Models.DropType.Drif;
                     }
                 }
@@ -82,7 +82,7 @@ namespace BrokenHelper.PacketHandlers
                     }
                     else
                     {
-                        item.Value = value;
+                        if (!item.LockPrice) item.Value = value;
                         item.DropType = Models.DropType.Item;
                     }
                 }
