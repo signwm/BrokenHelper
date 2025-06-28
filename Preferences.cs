@@ -7,7 +7,7 @@ namespace BrokenHelper
 {
     public static class Preferences
     {
-        private static readonly string Dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data");
+        private static readonly string Dir = Path.Combine("data");
         private static readonly string FilePath = Path.Combine(Dir, "preferences.cfg");
 
         private static readonly Dictionary<string, string> Values = new(StringComparer.OrdinalIgnoreCase);
