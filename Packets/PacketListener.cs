@@ -44,9 +44,30 @@ namespace BrokenHelper
                 throw new InvalidOperationException("No capture device found");
 
             _device.OnPacketArrival += OnPacketArrival;
-            _device.Open(DeviceModes.Promiscuous, 1000);
-            _device.Filter = "tcp src port 9365";
-            _device.StartCapture();
+            bool opened = false;
+            try
+            {
+                _device.Open(DeviceModes.Promiscuous, 1000);
+                opened = true;
+                _device.Filter = "tcp src port 9365";
+                _device.StartCapture();
+            }
+            catch (PcapException)
+            {
+                if (opened)
+                    _device.Close();
+                _device.OnPacketArrival -= OnPacketArrival;
+                _device = null;
+                throw;
+            }
+            catch (Exception)
+            {
+                if (opened)
+                    _device.Close();
+                _device.OnPacketArrival -= OnPacketArrival;
+                _device = null;
+                throw;
+            }
         }
 
         public void Stop()
