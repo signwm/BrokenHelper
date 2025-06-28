@@ -10,6 +10,7 @@ namespace BrokenHelper.Models
         public int? Value { get; set; }
         public int? Rank { get; set; }
         public string? Code { get; set; }
+        public bool LockPrice { get; set; }
 
         public List<DropEntity> Drops { get; set; } = [];
     }
