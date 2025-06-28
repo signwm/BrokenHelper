@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <None Include="Resources\bh_act.wav" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="data\config.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

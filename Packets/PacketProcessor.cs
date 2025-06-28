@@ -12,6 +12,7 @@ namespace BrokenHelper
             "1;118;",
             "3;1;",
             "3;19;",
+            "3;27;",
             "5;5;",
             "36;0;",
             "50;0;"
@@ -39,6 +40,11 @@ namespace BrokenHelper
             else if (prefix == "3;19;")
             {
                 SafeHandle(() => fightHandler.HandleFightSummary(rest, time), prefix);
+            }
+            else if (prefix == "3;27;")
+            {
+                SafeHandle(() => instanceHandler.HandlePlayerDeath(time), prefix);
+                GameEvents.OnPlayerDied();
             }
             else if (prefix == "5;5;")
             {

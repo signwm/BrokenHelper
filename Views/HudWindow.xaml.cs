@@ -87,6 +87,15 @@ namespace BrokenHelper
             });
         }
 
+        private void OnPlayerDied()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _fightDurationValue.Text = "Śmierć";
+                _fightDurationValue.Foreground = Brushes.Red;
+            });
+        }
+
         public HudWindow(string playerName)
         {
             _playerName = playerName;
@@ -173,6 +182,7 @@ namespace BrokenHelper
             GameEvents.FightSummary += OnFightSummary;
             GameEvents.FightEnded += OnFightEnded;
             GameEvents.InstanceStarted += OnInstanceStarted;
+            GameEvents.PlayerDied += OnPlayerDied;
 
             UpdateData();
         }
@@ -448,6 +458,7 @@ namespace BrokenHelper
             GameEvents.FightSummary -= OnFightSummary;
             GameEvents.FightEnded -= OnFightEnded;
             GameEvents.InstanceStarted -= OnInstanceStarted;
+            GameEvents.PlayerDied -= OnPlayerDied;
             base.OnClosed(e);
         }
     }
