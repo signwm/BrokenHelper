@@ -35,7 +35,16 @@ namespace BrokenHelper
             if (!File.Exists(path))
                 return;
             var json = File.ReadAllText(path);
-            var cfg = JsonSerializer.Deserialize<ConfigModel>(json) ?? new ConfigModel();
+            ConfigModel cfg;
+            try
+            {
+                cfg = JsonSerializer.Deserialize<ConfigModel>(json) ?? new ConfigModel();
+            }
+            catch (Exception ex)
+            {
+                Logger.Add("GameConfig", $"Failed to deserialize config: {ex.Message}", DateTime.Now);
+                cfg = new ConfigModel();
+            }
             BossGroups = cfg.BossGroups ?? [];
             MultiKillBosses = cfg.MultiKillBosses ?? [];
             SingleBosses = cfg.SingleBosses != null ? new HashSet<string>(cfg.SingleBosses) : [];
